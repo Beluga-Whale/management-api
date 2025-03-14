@@ -41,9 +41,3 @@ func (repo *UserRepository) FindByEmail(email string) (*models.Users, error ){
 	return &user, nil
 
 }
-
-func (repo *UserRepository) CheckPassword(user *models.Users,password string) bool{
-	err :=bcrypt.CompareHashAndPassword([]byte(user.Password),[]byte(password))
-	
-	return err ==nil
-}

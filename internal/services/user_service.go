@@ -6,6 +6,7 @@ import (
 
 	"github.com/Beluga-Whale/management-api/internal/models"
 	"github.com/Beluga-Whale/management-api/internal/repositories"
+	"github.com/Beluga-Whale/management-api/internal/utils"
 )
 
 type UserService struct {
@@ -39,11 +40,27 @@ func (s *UserService) RegisterUser(user *models.Users) error {
 	return s.userRepo.CreateUser(user)
 }
 
-// func (s *UserService) Login(user *models.Users) error {
-// 	if user.Email =="" || user.Password =="" {
-// 		return errors.New("Email or Password is valid")
-// 	} 
+func (s *UserService) Login(user *models.Users) (string,*models.Users,error) {
+	if user.Email =="" || user.Password =="" {
+		return "",nil,errors.New("Email or Password is required")
+	} 
+		
+	dbUser, err := s.userRepo.FindByEmail(user.Email)
+	if err != nil {
+		return "",nil,errors.New("Email not found")
+	}
 
+	if !utils.CheckPassword(dbUser ,user.Password) {
+		return "",nil,errors.New("Invalid Email or Password")
+	}
 
-// }
+	token, err := utils.GenerateJWT(dbUser.Email)
+	
+	if err != nil{
+		return "",nil,fmt.Errorf("Failed to generate token: %w", err)
+	}
+
+	return token,dbUser,nil
+
+}
 

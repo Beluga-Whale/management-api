@@ -27,3 +27,26 @@ func (h *UserHandler) RegisterUser(c *fiber.Ctx) error {
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"message":"User registered success"})
 }
+
+func (h *UserHandler) Login(c *fiber.Ctx) error {
+	user := new(models.Users)
+	if err:= c.BodyParser(user); err != nil{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error":"In valid request"})
+	}
+
+	token, userDetail ,err := h.userService.Login(user)
+
+	if err !=nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error":"In valid login"})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message":"Login success",
+		"token":token,
+		"user":fiber.Map{
+			"id": userDetail.ID,
+			"email":userDetail.Email,
+			"name": userDetail.Name,
+		},
+	})
+}

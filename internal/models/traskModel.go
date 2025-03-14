@@ -26,8 +26,8 @@ type Tasks struct {
 	DueDate time.Time
 	Title string
 	Description string
-	Status  Status `gorm:"type:enum('active','inactive');not null; default:'active'"`
+	Status  Status `gorm:"type:task_status;not null; default:'active'"`
 	Completed bool
-	Priority Priority `gorm:"type:enum('low','medium','high');not null;default:'low'"`
+	Priority Priority `gorm:"type:task_priority;not null;default:'low'"`
 	UserID uint //NOTE - FK
 }

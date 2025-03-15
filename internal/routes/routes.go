@@ -9,5 +9,6 @@ func SetupRoutes(app *fiber.App, userHandler *handlers.UserHandler ){
 	api := app.Group("/api")
 	api.Post("/user/register", userHandler.RegisterUser)
 	api.Post("/user/login", userHandler.Login)
+	api.Post("/user/logout", userHandler.Logout)
 
 }

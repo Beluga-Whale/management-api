@@ -34,7 +34,7 @@ func (s *UserService) RegisterUser(user *models.Users) error {
 	}
 	// NOTE - Check password length
 	if len(user.Password)<6 {
-		return errors.New("Password ")
+		return errors.New("Password must more 6 char ")
 	}
 
 	return s.userRepo.CreateUser(user)
@@ -45,6 +45,7 @@ func (s *UserService) Login(user *models.Users) (string,*models.Users,error) {
 		return "",nil,errors.New("Email or Password is required")
 	} 
 		
+	// NOTE - find User by Email
 	dbUser, err := s.userRepo.FindByEmail(user.Email)
 	if err != nil {
 		return "",nil,errors.New("Email not found")

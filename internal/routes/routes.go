@@ -6,7 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-func SetupRoutes(app *fiber.App, userHandler *handlers.UserHandler ){
+func SetupRoutes(app *fiber.App, userHandler *handlers.UserHandler, taskHandler *handlers.TaskHandler ){
 	api := app.Group("/api")
 	api.Post("/user/register", userHandler.RegisterUser)
 	api.Post("/user/login", userHandler.Login)
@@ -14,8 +14,6 @@ func SetupRoutes(app *fiber.App, userHandler *handlers.UserHandler ){
 
 	// NOTE - Protect routes by authMiddleware
 	api.Use(middleware.AuthMiddleware)
-	api.Get("/task",func (c *fiber.Ctx) error {
-		return c.JSON(fiber.Map{"message":"TEST"})
-	})
-
+	api.Post("/task", taskHandler.CreateTask)
+	api.Get("/task", taskHandler.GetAllTask)
 }

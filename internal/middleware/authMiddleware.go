@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"fmt"
-	"os"
 
+	"github.com/Beluga-Whale/management-api/internal/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -24,20 +24,13 @@ func AuthMiddleware(c*fiber.Ctx) error {
 		})
 	}
 	
-	// NOTE - นำ token มาเช็คว่าเป็นอันเดียวกันไหม
-	token, err := jwt.ParseWithClaims(tokenString,&JWTClaims{}, func(token *jwt.Token)  (interface{},error){
-		return []byte(os.Getenv("JWT_SECRET")),nil
-	})
 
-	// NOTE - Check token valid
-	if err != nil || !token.Valid {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message":"Invalid or expired token"})
-	}
+	claims,err := utils.ParseJWT(tokenString)
 
-	claims, ok :=token.Claims.(*JWTClaims)
-
-	if !ok {
-		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"message":"Invalid token claims"})
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"message":"Invalid token claims",
+		})
 	}
 
 	fmt.Println(claims)

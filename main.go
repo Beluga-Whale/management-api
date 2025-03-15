@@ -29,18 +29,18 @@ func main() {
 
 	// NOTE - Create Repository
 	userRepo := repositories.NewUserRepository(config.DB)
-	// taskRepo := repositories.NewTaskRepository()(config.DB)
+	taskRepo := repositories.NewTaskRepository(config.DB)
 
 	// NOTE - Create Service
 	userService := services.NewUserService(userRepo)
-	// taskService := services.NewTaskService(taskRepo)
+	taskService := services.NewTaskService(taskRepo,userRepo)
 
 	// NOTE - Handler
 	userHandler := handlers.NewUserHandler(userService)
-	// taskHandler := handlers.(taskService)
+	taskHandler := handlers.NewTaskHandler(taskService)
 
 	// NOTE - Route 
-	routes.SetupRoutes(app,userHandler)
+	routes.SetupRoutes(app,userHandler,taskHandler)
 
 
 	port := os.Getenv("PORT_API")

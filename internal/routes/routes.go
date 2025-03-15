@@ -13,6 +13,9 @@ func SetupRoutes(app *fiber.App, userHandler *handlers.UserHandler ){
 	api.Post("/user/logout", userHandler.Logout)
 
 	// NOTE - Protect routes by authMiddleware
-	app.Use(middleware.AuthMiddleware)
+	api.Use(middleware.AuthMiddleware)
+	api.Get("/task",func (c *fiber.Ctx) error {
+		return c.JSON(fiber.Map{"message":"TEST"})
+	})
 
 }

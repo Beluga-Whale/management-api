@@ -13,8 +13,6 @@ type JWTCliams struct {
 }
 
 func GenerateJWT(email string) (string, error) {
-
-	// os.Getenv("PORT_API")
 	secretKey := []byte(os.Getenv("JWT_SECRET"))
 
 	claims :=JWTCliams{

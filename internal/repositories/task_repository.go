@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"errors"
+	"fmt"
 	"strconv"
 	"strings"
 
@@ -52,4 +53,23 @@ func (repo *TaskRepository) FindTaskById(idStr string) (*models.Tasks, error) {
 	}
 	
 	return &task,nil
+}
+
+func (repo *TaskRepository) UpdateTaskById(updatedTaskValue *models.Tasks, taskID uint) error {
+	var task models.Tasks
+
+	result := repo.db.First(&task, taskID)
+	if result.Error != nil {
+		if result.Error == gorm.ErrRecordNotFound {
+			return fmt.Errorf("Can't find task by ID: %w", result.Error)
+		}
+		return fmt.Errorf("Error fetching task: %w", result.Error)
+	}
+
+	// NOTE - Update task 
+	if err:= repo.db.Model(&task).Updates(updatedTaskValue).Error; err != nil {
+		return fmt.Errorf("Failed to update task: %w",err)
+	} 
+
+	return nil
 }

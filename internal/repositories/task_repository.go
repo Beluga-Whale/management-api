@@ -2,6 +2,7 @@ package repositories
 
 import (
 	"errors"
+	"strconv"
 	"strings"
 
 	"github.com/Beluga-Whale/management-api/internal/models"
@@ -25,11 +26,30 @@ func (repo *TaskRepository) CreateTask(task *models.Tasks)error {
 }
 
 
-func (repo *TaskRepository) FindTaskAll() ([]models.Tasks,error) {
+func (repo *TaskRepository) FindTaskAll(userId uint) ([]models.Tasks,error) {
+
 	var tasks []models.Tasks
-	if err:= repo.db.Find(&tasks).Error; err !=nil {
+	
+	if err:= repo.db.Where("user_id",userId).Find(&tasks).Error; err !=nil {
 		return  nil,err
 	}
 	return tasks,nil
+}
 
+func (repo *TaskRepository) FindTaskById(idStr string) (*models.Tasks, error) {
+	var task models.Tasks
+
+	id,err :=  strconv.Atoi(idStr)
+
+	if err !=nil{
+		return nil,errors.New("Invalid Task ID fomat")
+	}
+
+	result := repo.db.First(&task, id)
+
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	
+	return &task,nil
 }

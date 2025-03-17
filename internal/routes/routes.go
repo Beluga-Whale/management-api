@@ -16,4 +16,5 @@ func SetupRoutes(app *fiber.App, userHandler *handlers.UserHandler, taskHandler 
 	api.Use(middleware.AuthMiddleware)
 	api.Post("/task", taskHandler.CreateTask)
 	api.Get("/task", taskHandler.GetAllTask)
+	api.Get("/task/:id", taskHandler.FindTaskById)
 }

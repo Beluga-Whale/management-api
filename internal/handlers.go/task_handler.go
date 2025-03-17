@@ -16,7 +16,16 @@ func NewTaskHandler(taskService *services.TaskService) *TaskHandler{
 
 
 func (h *TaskHandler) GetAllTask(c *fiber.Ctx) error {
-	tasks, err :=  h.taskService.GetAllTask()
+	//NOTE -  ดึง userID จาก cookie
+	emailCookie := c.Cookies("jwt")
+
+	if emailCookie == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "User not authenticated",
+		})
+	}
+
+	tasks, err :=  h.taskService.GetAllTask(emailCookie)
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -39,18 +48,12 @@ func (h *TaskHandler) CreateTask(c *fiber.Ctx)error{
 
     // ดึง userID จาก cookie
     emailCookie := c.Cookies("jwt")
-	// fmt.Println("userIDStr",userIDStr)
+
 	if emailCookie == "" {
         return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
             "error": "User not authenticated",
         })
     }
-	// userID, err := strconv.Atoi(userIDStr)
-	// if err != nil {
-    //     return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-    //         "error": "Invalid user ID",
-    //     })
-    // }
 	
 	if err := h.taskService.CreateTask(task, emailCookie); err != nil{
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
@@ -63,3 +66,38 @@ func (h *TaskHandler) CreateTask(c *fiber.Ctx)error{
 	})
 
 }
+
+func (h *TaskHandler) FindTaskById(c *fiber.Ctx) error {
+
+	// NOTE - get ID From Params
+	idStr:= c.Params("id")
+
+	if idStr == ""{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":"Task ID is required",
+		})
+	}
+
+	// NOTE - ดึง Email จาก cookie เพื่อเอามาเช็คว่าเป็น User ID เดียวกับที่อยู่ใน task ไหม
+
+	emailCookie := c.Cookies("jwt")
+	if emailCookie == "" {
+        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+            "error": "User not authenticated",
+        })
+    }
+
+    task,err :=	h.taskService.FindTaskById(idStr,emailCookie)
+	
+	if err !=nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error": err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message": task,
+	})
+
+}
+

@@ -6,6 +6,10 @@ import (
 )
 
 func CheckPassword(user *models.Users, password string) bool {
+	if user == nil {
+		return false
+	}
+
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	return err == nil
 }

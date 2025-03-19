@@ -41,7 +41,7 @@ func (h *UserHandler) Login(c *fiber.Ctx) error {
 	token, userDetail ,err := h.userService.Login(user)
 
 	if err !=nil {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error":"In valid login"})
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error":err.Error()})
 	}
 
 	// NOTE - Set cookie
@@ -51,6 +51,8 @@ func (h *UserHandler) Login(c *fiber.Ctx) error {
 		Expires: time.Now().Add(time.Hour*72),
 		HTTPOnly: true,
 		Secure:false,
+		SameSite: fiber.CookieSameSiteNoneMode, 
+		
 	})
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{

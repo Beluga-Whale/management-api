@@ -11,6 +11,7 @@ import (
 	"github.com/Beluga-Whale/management-api/internal/routes"
 	"github.com/Beluga-Whale/management-api/internal/services"
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
 )
 
@@ -26,6 +27,14 @@ func main() {
 
 	// NOTE - Fiber
 	app := fiber.New()
+
+	// NOTE - Use cors
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "http://localhost:3000",
+		AllowMethods: "GET,POST,PUT,PATCH,DELETE",
+		AllowHeaders: "Content-Type,Authorization",
+		AllowCredentials: true,
+	}))
 
 	// NOTE - Create Repository
 	userRepo := repositories.NewUserRepository(config.DB)

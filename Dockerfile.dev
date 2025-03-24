@@ -1,19 +1,22 @@
-# ใช้ Golang 1.23 + Alpine
-FROM golang:1.23-alpine
+# ใช้ Go 1.22 (Go 1.23 ยังไม่มี official image)
+FROM golang:1.22
 
 # ตั้งค่า Working Directory
 WORKDIR /app
 
-# ติดตั้ง git และอัปเกรด Go Toolchain อัตโนมัติ
-RUN apk add --no-cache git && export GOTOOLCHAIN=auto
+# คัดลอก go.mod และ go.sum ก่อน
+COPY go.mod go.sum ./
 
-# ติดตั้ง Air (hot reload)
-RUN go install github.com/cosmtrek/air@latest
+# ดาวน์โหลด dependencies
+RUN go mod download
 
 # คัดลอกไฟล์ทั้งหมดเข้า container
 COPY . .
 
-# เปิด Port API
+# ติดตั้ง Air (hot reload) โดยระบุเวอร์ชันที่ยังรองรับชื่อเดิม
+RUN go install github.com/cosmtrek/air@v1.43.0
+
+# เปิดพอร์ต API
 EXPOSE 8080
 
 # ใช้ Air รันโปรเจค

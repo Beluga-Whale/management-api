@@ -1,19 +1,22 @@
-# ใช้ Go 1.22 (Go 1.23 ยังไม่มี official image)
-FROM golang:1.22
+# ใช้ Go 1.24 (หรือเวอร์ชันล่าสุดที่รองรับ)
+FROM golang:1.24
 
 # ตั้งค่า Working Directory
 WORKDIR /app
 
-# คัดลอก go.mod และ go.sum ก่อน
+# กำหนดให้ใช้ toolchain เวอร์ชันล่าสุดที่ต้องการ
+ENV GOTOOLCHAIN=auto
+
+# คัดลอก go.mod และ go.sum ก่อน เพื่อลดการดาวน์โหลด dependency ซ้ำ
 COPY go.mod go.sum ./
 
 # ดาวน์โหลด dependencies
 RUN go mod download
 
-# คัดลอกไฟล์ทั้งหมดเข้า container
+# คัดลอกโค้ดทั้งหมดเข้า container
 COPY . .
 
-# ติดตั้ง Air (hot reload) โดยระบุเวอร์ชันที่ยังรองรับชื่อเดิม
+# ติดตั้ง Air (hot reload) โดยใช้เวอร์ชันที่รองรับ
 RUN go install github.com/cosmtrek/air@v1.43.0
 
 # เปิดพอร์ต API

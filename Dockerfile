@@ -1,4 +1,3 @@
-# ใช้ Go เวอร์ชันล่าสุด
 FROM golang:1.22-alpine
 
 # ติดตั้ง air (hot reload)
@@ -10,7 +9,10 @@ WORKDIR /app
 # คัดลอกโค้ดทั้งหมด
 COPY . .
 
-# เปิดพอร์ต 8080
+# โหลดค่า env (Docker Compose จะจัดการให้)
+ENV PORT_API=:8080
+
+# เปิดพอร์ต API
 EXPOSE 8080
 
 # ใช้ air reload สำหรับ Dev Mode

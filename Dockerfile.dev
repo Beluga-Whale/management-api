@@ -1,19 +1,17 @@
-FROM golang:1.22-alpine
-
-# ติดตั้ง air (hot reload)
-RUN apk add --no-cache git && go install github.com/cosmtrek/air@latest
+# ใช้ Go 1.23 (หรือเวอร์ชันล่าสุด)
+FROM golang:1.23
 
 # ตั้งค่า Working Directory
 WORKDIR /app
 
-# คัดลอกโค้ดทั้งหมด
+# ติดตั้ง git และอัปเกรด Go Toolchain อัตโนมัติ
+RUN apk add --no-cache git && export GOTOOLCHAIN=auto
+
+# ติดตั้ง Air (hot reload)
+RUN go install github.com/cosmtrek/air@latest
+
+# คัดลอกไฟล์ทั้งหมดเข้า container
 COPY . .
 
-# โหลดค่า env (Docker Compose จะจัดการให้)
-ENV PORT_API=:8080
-
-# เปิดพอร์ต API
-EXPOSE 8080
-
-# ใช้ air reload สำหรับ Dev Mode
+# ใช้ Air รันโปรเจค
 CMD ["air"]

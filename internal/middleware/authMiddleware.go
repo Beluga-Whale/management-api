@@ -27,6 +27,8 @@ func AuthMiddleware(c*fiber.Ctx) error {
 
 	claims,err := utils.ParseJWT(tokenString)
 
+	c.Locals("userEmail", claims)
+
 	if err != nil {
 		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
 			"message":"Invalid token claims",

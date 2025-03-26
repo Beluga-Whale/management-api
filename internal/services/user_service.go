@@ -65,3 +65,8 @@ func (s *UserService) Login(user *models.Users) (string,*models.Users,error) {
 
 }
 
+func (s *UserService) GetUserByEmail(email string) (*models.Users, error) {
+
+
+	return s.userRepo.FindByEmail(email)
+}

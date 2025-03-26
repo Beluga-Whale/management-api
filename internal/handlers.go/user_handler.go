@@ -73,3 +73,17 @@ func (h *UserHandler) Logout(c *fiber.Ctx) error {
 		"message":"Logout Success",
 	})
 }
+
+func (h *UserHandler) GetUser(c *fiber.Ctx) error {
+	userEmail := c.Locals("userEmail").(string)
+
+	user, err := h.userService.GetUserByEmail(userEmail)
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error":err.Error()})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"user":user,
+	})
+}

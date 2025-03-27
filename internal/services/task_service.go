@@ -43,7 +43,7 @@ func (s *TaskService)  CreateTask(task *models.Tasks, emailCookie string) error 
 	return nil
 }
 
-func (s *TaskService) GetAllTask(emailCookie string) ([]models.Tasks,error) {
+func (s *TaskService) GetAllTask(emailCookie string ,priority string) ([]models.Tasks,error) {
 	// NOTE - Decode Jwt in cookie เพื่อดึง Eamil
 	email,err :=utils.ParseJWT(emailCookie)
 
@@ -58,7 +58,7 @@ func (s *TaskService) GetAllTask(emailCookie string) ([]models.Tasks,error) {
 		return nil, errors.New("User not found")
 	}
 
-		return s.taskRepo.FindTaskAll(user.ID)
+		return s.taskRepo.FindTaskAll(user.ID, priority)
 }
 
 func (s *TaskService) FindTaskById(idSrt string, emailCookie string) (*models.Tasks, error) {

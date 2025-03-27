@@ -25,7 +25,10 @@ func (h *TaskHandler) GetAllTask(c *fiber.Ctx) error {
 		})
 	}
 
-	tasks, err :=  h.taskService.GetAllTask(emailCookie)
+	// NOTE - Query Param
+	priority := c.Query("priority", "")
+
+	tasks, err :=  h.taskService.GetAllTask(emailCookie,priority)
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

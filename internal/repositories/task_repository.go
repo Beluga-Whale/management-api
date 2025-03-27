@@ -27,11 +27,17 @@ func (repo *TaskRepository) CreateTask(task *models.Tasks)error {
 }
 
 
-func (repo *TaskRepository) FindTaskAll(userId uint) ([]models.Tasks,error) {
-
+func (repo *TaskRepository) FindTaskAll(userId uint, priority string) ([]models.Tasks,error) {
 	var tasks []models.Tasks
 	
-	if err:= repo.db.Where("user_id",userId).Find(&tasks).Error; err !=nil {
+	query := repo.db.Where("user_id = ?",userId)
+
+	if priority != ""{
+		query = repo.db.Where("priority = ?",priority)
+	}
+
+
+	if err:= query.Find(&tasks).Error; err !=nil {
 		return  nil,err
 	}
 	return tasks,nil

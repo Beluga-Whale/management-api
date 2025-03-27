@@ -37,7 +37,7 @@ func (repo *TaskRepository) FindTaskAll(userId uint, priority string) ([]models.
 	}
 
 
-	if err:= query.Find(&tasks).Error; err !=nil {
+	if err:= query.Order("created_at desc").Find(&tasks).Error; err !=nil {
 		return  nil,err
 	}
 	return tasks,nil

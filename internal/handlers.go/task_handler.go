@@ -145,3 +145,32 @@ func (h *TaskHandler) UpdateTask(c *fiber.Ctx) error {
 	})
 }
 
+func (h *TaskHandler) DeleteTask(c *fiber.Ctx) error {
+	idStr := c.Params("id")
+
+	if idStr == ""{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":"Task ID is required",
+		})
+	}
+
+	
+	// NOTE - ดึง Email จาก cookie เพื่อเอามาเช็คว่าเป็น User ID เดียวกับที่อยู่ใน task ไหม
+
+	emailCookie := c.Cookies("jwt")
+	if emailCookie == "" {
+        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+            "error": "User not authenticated",
+        })
+    }
+
+	if err := h.taskService.DeleteTaskById(idStr,emailCookie) ; err != nil{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error :": err.Error(),
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message":"Delete Task Success",
+	})
+}
+

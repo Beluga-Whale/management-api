@@ -79,3 +79,14 @@ func (repo *TaskRepository) UpdateTaskById(updatedTaskValue *models.Tasks, taskI
 
 	return nil
 }
+
+func (repo *TaskRepository) DeleteTaskById(id uint) error {
+
+	// ลบข้อมูลในฐานข้อมูลโดยใช้ id
+	result := repo.db.Delete(&models.Tasks{}, id)
+	if result.Error != nil {
+		return result.Error // ส่งคืนข้อผิดพลาดหากการลบล้มเหลว
+	}
+
+	return nil // ส่งคืน nil หากลบสำเร็จ
+}

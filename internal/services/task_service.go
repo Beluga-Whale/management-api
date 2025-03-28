@@ -133,3 +133,43 @@ func (s*TaskService) UpdateTaskById(idStr string, emailCookie string, updatedTas
 	return nil
 
 }
+
+func (s*TaskService) DeleteTaskById(idStr string,emailCookie string,) error {
+	// NOTE - Check idStr
+	if idStr == "" {
+		return errors.New("Id is required")
+	}
+
+	// NOTE - Decode Jwt in cookie เพื่อดึง Eamil
+	email,err :=utils.ParseJWT(emailCookie)
+
+	if err != nil{
+		return fmt.Errorf("Fail To Check Email : %w",err)
+	}
+
+	
+	// NOTE - หา User จาก Email เพื่อเอา UserID 
+	user, err := s.userRepo.FindByEmail(email)
+
+	if err != nil {
+		return  errors.New("User not found")
+	}
+
+	
+	// NOTE -หา Task By ID
+	task,err:= s.taskRepo.FindTaskById(idStr)
+	if err != nil {
+		return  fmt.Errorf("failed to find task by ID: %w", err)
+	}
+
+	// NOTE - มาเช็คว่าผู้ใช้เป็นเจ้าของ Task ไหม
+	if task.UserID != user.ID {
+		return  errors.New("you do not have permission to access this task")
+	}
+
+	if	err :=s.taskRepo.DeleteTaskById(task.ID); err != nil {
+		return fmt.Errorf("Error :",err.Error())
+	}
+	
+	return nil
+}

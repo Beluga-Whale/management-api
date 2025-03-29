@@ -111,7 +111,6 @@ func (h *TaskHandler) UpdateTask(c *fiber.Ctx) error {
 
 	// NOTE - get ID From Params
 	idStr:= c.Params("id")
-
 	if idStr == ""{
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error":"Task ID is required",
@@ -132,7 +131,6 @@ func (h *TaskHandler) UpdateTask(c *fiber.Ctx) error {
 			"error":"Invalid request",
 		})
 	}
-
 	if err :=h.taskService.UpdateTaskById(idStr, emailCookie, task); err !=nil{
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error :": err.Error(),
@@ -188,6 +186,56 @@ func (h*TaskHandler) GetCompleteTask(c *fiber.Ctx) error {
 	priority := c.Query("priority", "")
 
 	tasks, err :=  h.taskService.GetCompleteTask(emailCookie,priority)
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":err.Error(),
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message":tasks,
+	})
+}
+
+func (h*TaskHandler) GetPendingTask(c *fiber.Ctx) error {
+	//NOTE -  ดึง userID จาก cookie
+	emailCookie := c.Cookies("jwt")
+
+	if emailCookie == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "User not authenticated",
+		})
+	}
+
+	// NOTE - Query Param
+	priority := c.Query("priority", "")
+
+	tasks, err :=  h.taskService.GetPendingTask(emailCookie,priority)
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":err.Error(),
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message":tasks,
+	})
+}
+
+func (h*TaskHandler) GetOverdueTask(c *fiber.Ctx) error {
+	//NOTE -  ดึง userID จาก cookie
+	emailCookie := c.Cookies("jwt")
+
+	if emailCookie == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "User not authenticated",
+		})
+	}
+
+	// NOTE - Query Param
+	priority := c.Query("priority", "")
+
+	tasks, err :=  h.taskService.GetOverdueTask(emailCookie,priority)
 
 	if err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{

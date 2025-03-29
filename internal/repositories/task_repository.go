@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/Beluga-Whale/management-api/internal/models"
 	"gorm.io/gorm"
@@ -76,6 +77,9 @@ func (repo *TaskRepository) UpdateTaskById(updatedTaskValue *models.Tasks, taskI
 	if err:= repo.db.Model(&task).Updates(updatedTaskValue).Error; err != nil {
 		return fmt.Errorf("Failed to update task: %w",err)
 	} 
+	if err := repo.db.Model(&task).UpdateColumn("Completed", updatedTaskValue.Completed).Error; err != nil {
+		return fmt.Errorf("Failed to update Completed: %w", err)
+	}
 
 	return nil
 }
@@ -95,6 +99,36 @@ func (repo *TaskRepository) FindTaskComplete(userId uint, priority string, compl
 	var tasks []models.Tasks
 	
 	query := repo.db.Where("user_id = ?",userId).Where("completed = ?", complete)
+
+	if priority != ""{
+		query = query.Where("priority = ?",priority)
+	}
+
+	if err:= query.Order("created_at desc").Find(&tasks).Error; err !=nil {
+		return  nil,err
+	}
+	return tasks,nil
+}
+
+func (repo *TaskRepository) FindTaskPending(userId uint, priority string, complete bool) ([]models.Tasks,error) {
+	var tasks []models.Tasks
+	
+	query := repo.db.Where("user_id = ?",userId).Where("due_date >= ?", time.Now())
+
+	if priority != ""{
+		query = query.Where("priority = ?",priority)
+	}
+
+	if err:= query.Order("created_at desc").Find(&tasks).Error; err !=nil {
+		return  nil,err
+	}
+	return tasks,nil
+}
+
+func (repo *TaskRepository) FindTaskOverdue(userId uint, priority string, complete bool) ([]models.Tasks,error) {
+	var tasks []models.Tasks
+	
+	query := repo.db.Where("user_id = ?",userId).Where("due_date < ?", time.Now())
 
 	if priority != ""{
 		query = query.Where("priority = ?",priority)

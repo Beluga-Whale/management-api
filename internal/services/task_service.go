@@ -191,3 +191,39 @@ func (s *TaskService) GetCompleteTask(emailCookie string ,priority string) ([]mo
 
 	return s.taskRepo.FindTaskComplete(user.ID, priority, true)
 }
+
+func (s *TaskService) GetPendingTask(emailCookie string ,priority string) ([]models.Tasks,error) {
+	// NOTE - Decode Jwt in cookie เพื่อดึง Eamil
+	email,err :=utils.ParseJWT(emailCookie)
+
+	if err != nil{
+		return nil,fmt.Errorf("Fail To Check Email : %w",err)
+	}
+
+	// NOTE - หา User จาก Email เพื่อเอา UserID 
+	user, err := s.userRepo.FindByEmail(email)
+
+	if err != nil {
+		return nil, errors.New("User not found")
+	}
+
+	return s.taskRepo.FindTaskPending(user.ID, priority, true)
+}
+
+func (s *TaskService) GetOverdueTask(emailCookie string ,priority string) ([]models.Tasks,error) {
+	// NOTE - Decode Jwt in cookie เพื่อดึง Eamil
+	email,err :=utils.ParseJWT(emailCookie)
+
+	if err != nil{
+		return nil,fmt.Errorf("Fail To Check Email : %w",err)
+	}
+
+	// NOTE - หา User จาก Email เพื่อเอา UserID 
+	user, err := s.userRepo.FindByEmail(email)
+
+	if err != nil {
+		return nil, errors.New("User not found")
+	}
+
+	return s.taskRepo.FindTaskOverdue(user.ID, priority, true)
+}

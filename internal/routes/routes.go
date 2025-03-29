@@ -19,6 +19,8 @@ func SetupRoutes(app *fiber.App, userHandler *handlers.UserHandler, taskHandler 
 	api.Post("/task", taskHandler.CreateTask)
 	api.Get("/task", taskHandler.GetAllTask)
 	api.Get("/task/complete", taskHandler.GetCompleteTask)
+	api.Get("/task/pending", taskHandler.GetPendingTask)
+	api.Get("/task/overdue", taskHandler.GetOverdueTask)
 	
 	api.Get("/task/:id", taskHandler.FindTaskById)
 	api.Put("/task/:id",taskHandler.UpdateTask)

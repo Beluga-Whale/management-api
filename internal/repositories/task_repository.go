@@ -33,7 +33,7 @@ func (repo *TaskRepository) FindTaskAll(userId uint, priority string) ([]models.
 	query := repo.db.Where("user_id = ?",userId)
 
 	if priority != ""{
-		query = repo.db.Where("priority = ?",priority)
+		query = query.Where("priority = ?",priority)
 	}
 
 
@@ -89,4 +89,19 @@ func (repo *TaskRepository) DeleteTaskById(id uint) error {
 	}
 
 	return nil // ส่งคืน nil หากลบสำเร็จ
+}
+
+func (repo *TaskRepository) FindTaskComplete(userId uint, priority string, complete bool) ([]models.Tasks,error) {
+	var tasks []models.Tasks
+	
+	query := repo.db.Where("user_id = ?",userId).Where("completed = ?", complete)
+
+	if priority != ""{
+		query = query.Where("priority = ?",priority)
+	}
+
+	if err:= query.Order("created_at desc").Find(&tasks).Error; err !=nil {
+		return  nil,err
+	}
+	return tasks,nil
 }

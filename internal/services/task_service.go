@@ -58,7 +58,7 @@ func (s *TaskService) GetAllTask(emailCookie string ,priority string) ([]models.
 		return nil, errors.New("User not found")
 	}
 
-		return s.taskRepo.FindTaskAll(user.ID, priority)
+	return s.taskRepo.FindTaskAll(user.ID, priority)
 }
 
 func (s *TaskService) FindTaskById(idSrt string, emailCookie string) (*models.Tasks, error) {
@@ -172,4 +172,22 @@ func (s*TaskService) DeleteTaskById(idStr string,emailCookie string,) error {
 	}
 	
 	return nil
+}
+
+func (s *TaskService) GetCompleteTask(emailCookie string ,priority string) ([]models.Tasks,error) {
+	// NOTE - Decode Jwt in cookie เพื่อดึง Eamil
+	email,err :=utils.ParseJWT(emailCookie)
+
+	if err != nil{
+		return nil,fmt.Errorf("Fail To Check Email : %w",err)
+	}
+
+	// NOTE - หา User จาก Email เพื่อเอา UserID 
+	user, err := s.userRepo.FindByEmail(email)
+
+	if err != nil {
+		return nil, errors.New("User not found")
+	}
+
+	return s.taskRepo.FindTaskComplete(user.ID, priority, true)
 }

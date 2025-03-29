@@ -174,3 +174,27 @@ func (h *TaskHandler) DeleteTask(c *fiber.Ctx) error {
 	})
 }
 
+func (h*TaskHandler) GetCompleteTask(c *fiber.Ctx) error {
+	//NOTE -  ดึง userID จาก cookie
+	emailCookie := c.Cookies("jwt")
+
+	if emailCookie == "" {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+			"error": "User not authenticated",
+		})
+	}
+
+	// NOTE - Query Param
+	priority := c.Query("priority", "")
+
+	tasks, err :=  h.taskService.GetCompleteTask(emailCookie,priority)
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":err.Error(),
+		})
+	}
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"message":tasks,
+	})
+}

@@ -1,7 +1,7 @@
 package routes
 
 import (
-	"github.com/Beluga-Whale/management-api/internal/handlers.go"
+	"github.com/Beluga-Whale/management-api/internal/handlers"
 	"github.com/Beluga-Whale/management-api/internal/middleware"
 	"github.com/gofiber/fiber/v2"
 )

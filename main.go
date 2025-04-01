@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/Beluga-Whale/management-api/config"
-	"github.com/Beluga-Whale/management-api/internal/handlers.go"
+	"github.com/Beluga-Whale/management-api/internal/handlers"
 	"github.com/Beluga-Whale/management-api/internal/repositories"
 	"github.com/Beluga-Whale/management-api/internal/routes"
 	"github.com/Beluga-Whale/management-api/internal/services"

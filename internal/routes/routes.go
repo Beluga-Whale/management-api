@@ -28,5 +28,5 @@ func SetupRoutes(app *fiber.App, userHandler *handlers.UserHandler, taskHandler 
 
 	// NOTE - User routes
 	api.Get("/user", userHandler.GetUser)
-
+	api.Put("/user/:id", userHandler.EditUser)
 }

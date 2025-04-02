@@ -70,3 +70,44 @@ func (s *UserService) GetUserByEmail(email string) (*models.Users, error) {
 
 	return s.userRepo.FindByEmail(email)
 }
+
+func (s *UserService) UpdateUserById(idStr string, emailCookie string, updatedUserValue *models.Users) (error) {
+	// NOTE - Check idStr
+	if idStr == "" {
+		return errors.New("Id is required")
+	}
+
+	// NOTE - Decode Jwt in cookie เพื่อดึง Eamil
+	email,err :=utils.ParseJWT(emailCookie)
+
+	if err != nil{
+		return fmt.Errorf("Fail To Check Email : %w",err)
+	}
+
+	// NOTE - หา User จาก Email เพื่อเอา UserID 
+	user, err := s.userRepo.FindByEmail(email)
+
+	if err != nil {
+		return  errors.New("User not found")
+	}
+
+
+	// NOTE -หา Task By ID
+	userID,err:= s.userRepo.FindUserById(idStr)
+
+	if err != nil {
+		return  fmt.Errorf("failed to find task by ID: %w", err)
+	}
+
+	// NOTE - มาเช็คว่าผู้ใช้เป็นเจ้าของ Task ไหม
+	if userID.ID != user.ID {
+		return  errors.New("you do not have permission to access this task")
+	}
+	if	err :=s.userRepo.UpdateUserById(updatedUserValue,userID.ID); err != nil {
+		return fmt.Errorf("Error :",err.Error())
+	}
+	
+	return nil
+
+
+}

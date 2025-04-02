@@ -87,3 +87,40 @@ func (h *UserHandler) GetUser(c *fiber.Ctx) error {
 		"user":user,
 	})
 }
+
+func (h *UserHandler) EditUser(c *fiber.Ctx) error {
+	user := new(models.Users)
+
+	err := c.BodyParser(user)
+		// NOTE - get ID From Params
+		idStr:= c.Params("id")
+		if idStr == ""{
+			return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+				"error":"Task ID is required",
+			})
+		}
+	// NOTE - ดึง Email จาก cookie
+	emailCookie := c.Cookies("jwt")
+	if emailCookie == "" {
+        return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+            "error": "User not authenticated",
+        })
+    }
+
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error":"Invalid request",
+		})
+	}
+
+	if err :=h.userService.UpdateUserById(idStr, emailCookie, user); err !=nil{
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"error :": err.Error(),
+		})
+	}
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"user":user,
+	})
+}
+

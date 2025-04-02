@@ -20,7 +20,7 @@ COPY . .
 RUN go install github.com/cosmtrek/air@v1.43.0
 
 # เปิดพอร์ต API
-EXPOSE 8080
+# EXPOSE 8080
 
 # ใช้ Air รันโปรเจค
 CMD ["air"]

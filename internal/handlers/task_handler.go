@@ -7,10 +7,10 @@ import (
 )
 
 type TaskHandler struct {
-	taskService *services.TaskService
+	taskService services.TaskServiceInterface
 }
 
-func NewTaskHandler(taskService *services.TaskService) *TaskHandler{
+func NewTaskHandler(taskService services.TaskServiceInterface) *TaskHandler{
 	return &TaskHandler{taskService :taskService}
 }
 

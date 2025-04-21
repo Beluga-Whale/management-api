@@ -11,6 +11,17 @@ import (
 	"gorm.io/gorm"
 )
 
+type TaskRepositoryInterface interface {
+	CreateTask(task *models.Tasks)error
+	FindTaskAll(userId uint, priority string) ([]models.Tasks,error)
+	FindTaskById(idStr string) (*models.Tasks, error)
+	UpdateTaskById(updatedTaskValue *models.Tasks, taskID uint) error
+	DeleteTaskById(id uint) error
+	FindTaskComplete(userId uint, priority string, complete bool) ([]models.Tasks,error)
+	FindTaskPending(userId uint, priority string, complete bool) ([]models.Tasks,error)
+	FindTaskOverdue(userId uint, priority string, complete bool) ([]models.Tasks,error)
+}
+
 type TaskRepository struct {
 	db *gorm.DB
 }

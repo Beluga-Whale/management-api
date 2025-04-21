@@ -9,11 +9,18 @@ import (
 	"github.com/Beluga-Whale/management-api/internal/utils"
 )
 
-type UserService struct {
-	userRepo *repositories.UserRepository
+type UserServiceInterface interface {
+	RegisterUser(user *models.Users) error
+	Login(user *models.Users) (string,*models.Users,error)
+	GetUserByEmail(email string) (*models.Users, error)
+	UpdateUserById(idStr string, emailCookie string, updatedUserValue *models.Users) (error)
 }
 
-func NewUserService(userRepo *repositories.UserRepository) *UserService {
+type UserService struct {
+	userRepo repositories.UserRepositoryInterface
+}
+
+func NewUserService(userRepo repositories.UserRepositoryInterface) *UserService {
 	return &UserService{userRepo: userRepo}
 }
 
@@ -104,7 +111,7 @@ func (s *UserService) UpdateUserById(idStr string, emailCookie string, updatedUs
 		return  errors.New("you do not have permission to access this task")
 	}
 	if	err :=s.userRepo.UpdateUserById(updatedUserValue,userID.ID); err != nil {
-		return fmt.Errorf("Error :",err.Error())
+		return fmt.Errorf("Error : %w",err)
 	}
 	
 	return nil

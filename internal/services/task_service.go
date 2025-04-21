@@ -9,12 +9,23 @@ import (
 	"github.com/Beluga-Whale/management-api/internal/utils"
 )
 
-type TaskService struct {
-	taskRepo *repositories.TaskRepository
-	userRepo *repositories.UserRepository
+type TaskServiceInterface interface {
+	CreateTask(task *models.Tasks, emailCookie string) error
+	GetAllTask(emailCookie string ,priority string) ([]models.Tasks,error)
+	FindTaskById(idSrt string, emailCookie string) (*models.Tasks, error)
+	UpdateTaskById(idStr string, emailCookie string, updatedTaskValue *models.Tasks) error 
+	DeleteTaskById(idStr string,emailCookie string,) error 
+	GetCompleteTask(emailCookie string ,priority string) ([]models.Tasks,error)
+	GetPendingTask(emailCookie string ,priority string) ([]models.Tasks,error)
+	GetOverdueTask(emailCookie string ,priority string) ([]models.Tasks,error)
 }
 
-func NewTaskService(taskRepo *repositories.TaskRepository, userRepo *repositories.UserRepository) *TaskService {
+type TaskService struct {
+	taskRepo repositories.TaskRepositoryInterface
+	userRepo repositories.UserRepositoryInterface
+}
+
+func NewTaskService(taskRepo repositories.TaskRepositoryInterface, userRepo repositories.UserRepositoryInterface) *TaskService {
 	return &TaskService{taskRepo: taskRepo, userRepo:userRepo}
 }
 
@@ -127,7 +138,7 @@ func (s*TaskService) UpdateTaskById(idStr string, emailCookie string, updatedTas
 		return  errors.New("you do not have permission to access this task")
 	}
 	if	err :=s.taskRepo.UpdateTaskById(updatedTaskValue,task.ID); err != nil {
-		return fmt.Errorf("Error :",err.Error())
+		return fmt.Errorf("Error : %w",err)
 	}
 	
 	return nil
@@ -168,7 +179,7 @@ func (s*TaskService) DeleteTaskById(idStr string,emailCookie string,) error {
 	}
 
 	if	err :=s.taskRepo.DeleteTaskById(task.ID); err != nil {
-		return fmt.Errorf("Error :",err.Error())
+		return fmt.Errorf("Error : %w",err)
 	}
 	
 	return nil

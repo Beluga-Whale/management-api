@@ -65,4 +65,66 @@ func TestRegisterUser(t *testing.T) {
 
 		assert.EqualError(t,err,"Fail To Check Email : Fail To Check Email")
 	})
+
+	t.Run("Email is already",func(t *testing.T) {
+		user := &models.Users{
+			Email: "already@mail.com",
+			Password: "Testasdfsdf",
+			Name: "tester",
+		}
+		userRepo := repositories.NewUserRepositoryMock()
+
+		userRepo.On("FindByEmail",user.Email).Return(user,nil)
+
+		userService := services.NewUserService(userRepo)
+
+		err := userService.RegisterUser(user)
+
+		assert.EqualError(t,err,"Email has already been used")
+		// NOTE - เช็คว่ามีการ call function ที่เราเรียกจริงไหม
+		userRepo.AssertExpectations(t)
+	})
+
+	t.Run("Password less more than 6",func(t *testing.T) {
+		user := &models.Users{
+			Email: "already@mail.com",
+			Password: "Tef",
+			Name: "tester",
+		}
+		userRepo := repositories.NewUserRepositoryMock()
+
+		// NOTE - ส่ง email ไปเช็คว่าซ้ำกันในระบบไหม
+		userRepo.On("FindByEmail",user.Email).Return(nil,nil)
+
+		userService := services.NewUserService(userRepo)
+
+		err :=userService.RegisterUser(user)
+
+		assert.EqualError(t, err,"Password must more 6 char ")
+
+		// NOTE - เช็คว่ามีการ call function ที่เราเรียกจริงไหม
+		userRepo.AssertExpectations(t)
+	})
+
+}
+
+func TestLogin(t *testing.T){
+	t.Run("Login Success",func(t *testing.T){
+		user := &models.Users{
+			Email: "login@gmail.com",
+			Password: "password",
+		}
+
+		userRepo := repositories.NewUserRepositoryMock()
+
+		userRepo.On("FindByEmail",user.Email).Return(user,nil)
+
+		userService := services.NewUserService(userRepo)
+
+		token,returnUser,err := userService.Login(user)
+
+		assert.NoError(t,err)
+		assert.NotEmpty(t,token)
+		assert.Equal(t, user.Email, returnUser.Email)
+	})
 }

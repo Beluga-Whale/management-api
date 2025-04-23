@@ -8,12 +8,21 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 )
 
+type JwtInterface interface {
+	GenerateJWT(email string) (string, error)
+	ParseJWT(tokenString string) (string, error)
+}
+
 type JWTClaims struct {
 	Email string `json:"email"`
 	jwt.RegisteredClaims
 }
 
-func GenerateJWT(email string) (string, error) {
+func NewJwt() *JWTClaims{
+	return &JWTClaims{}
+}
+
+func (c *JWTClaims) GenerateJWT(email string) (string, error) {
 	secretKey := []byte(os.Getenv("JWT_SECRET"))
 
 	claims :=JWTClaims{
@@ -28,7 +37,7 @@ func GenerateJWT(email string) (string, error) {
 
 }
 
-func ParseJWT(tokenString string) (string, error) {
+func (c *JWTClaims) ParseJWT(tokenString string) (string, error) {
 	// NOTE - นำ token มาเช็คว่าเป็นอันเดียวกันไหม
 	token, err := jwt.ParseWithClaims(tokenString,&JWTClaims{}, func(token *jwt.Token)  (interface{},error){
 		return []byte(os.Getenv("JWT_SECRET")),nil

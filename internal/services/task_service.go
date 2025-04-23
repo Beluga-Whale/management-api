@@ -23,10 +23,11 @@ type TaskServiceInterface interface {
 type TaskService struct {
 	taskRepo repositories.TaskRepositoryInterface
 	userRepo repositories.UserRepositoryInterface
+	jwtUtil utils.JwtInterface
 }
 
-func NewTaskService(taskRepo repositories.TaskRepositoryInterface, userRepo repositories.UserRepositoryInterface) *TaskService {
-	return &TaskService{taskRepo: taskRepo, userRepo:userRepo}
+func NewTaskService(taskRepo repositories.TaskRepositoryInterface, userRepo repositories.UserRepositoryInterface,jwtUtil utils.JwtInterface) *TaskService {
+	return &TaskService{taskRepo: taskRepo, userRepo:userRepo, jwtUtil: jwtUtil}
 }
 
 func (s *TaskService)  CreateTask(task *models.Tasks, emailCookie string) error {
@@ -34,7 +35,7 @@ func (s *TaskService)  CreateTask(task *models.Tasks, emailCookie string) error 
 		return errors.New("Title and Description is required")
 	}
 
-	claims, err := utils.ParseJWT(emailCookie)
+	claims, err := s.jwtUtil.ParseJWT(emailCookie)
 
 	if err != nil {
 		return errors.New("Error JWT : "+err.Error())
@@ -56,7 +57,7 @@ func (s *TaskService)  CreateTask(task *models.Tasks, emailCookie string) error 
 
 func (s *TaskService) GetAllTask(emailCookie string ,priority string) ([]models.Tasks,error) {
 	// NOTE - Decode Jwt in cookie เพื่อดึง Eamil
-	email,err :=utils.ParseJWT(emailCookie)
+	email,err :=s.jwtUtil.ParseJWT(emailCookie)
 
 	if err != nil{
 		return nil,fmt.Errorf("Fail To Check Email : %w",err)
@@ -75,7 +76,7 @@ func (s *TaskService) GetAllTask(emailCookie string ,priority string) ([]models.
 func (s *TaskService) FindTaskById(idSrt string, emailCookie string) (*models.Tasks, error) {
 
 	// NOTE - Decode Jwt in cookie เพื่อดึง Eamil
-	email,err :=utils.ParseJWT(emailCookie)
+	email,err :=s.jwtUtil.ParseJWT(emailCookie)
 
 	if err != nil{
 		return nil,fmt.Errorf("Fail To Check Email : %w",err)
@@ -112,7 +113,7 @@ func (s*TaskService) UpdateTaskById(idStr string, emailCookie string, updatedTas
 	}
 
 	// NOTE - Decode Jwt in cookie เพื่อดึง Eamil
-	email,err :=utils.ParseJWT(emailCookie)
+	email,err :=s.jwtUtil.ParseJWT(emailCookie)
 
 	if err != nil{
 		return fmt.Errorf("Fail To Check Email : %w",err)
@@ -152,7 +153,7 @@ func (s*TaskService) DeleteTaskById(idStr string,emailCookie string,) error {
 	}
 
 	// NOTE - Decode Jwt in cookie เพื่อดึง Eamil
-	email,err :=utils.ParseJWT(emailCookie)
+	email,err :=s.jwtUtil.ParseJWT(emailCookie)
 
 	if err != nil{
 		return fmt.Errorf("Fail To Check Email : %w",err)
@@ -187,7 +188,7 @@ func (s*TaskService) DeleteTaskById(idStr string,emailCookie string,) error {
 
 func (s *TaskService) GetCompleteTask(emailCookie string ,priority string) ([]models.Tasks,error) {
 	// NOTE - Decode Jwt in cookie เพื่อดึง Eamil
-	email,err :=utils.ParseJWT(emailCookie)
+	email,err :=s.jwtUtil.ParseJWT(emailCookie)
 
 	if err != nil{
 		return nil,fmt.Errorf("Fail To Check Email : %w",err)
@@ -205,7 +206,7 @@ func (s *TaskService) GetCompleteTask(emailCookie string ,priority string) ([]mo
 
 func (s *TaskService) GetPendingTask(emailCookie string ,priority string) ([]models.Tasks,error) {
 	// NOTE - Decode Jwt in cookie เพื่อดึง Eamil
-	email,err :=utils.ParseJWT(emailCookie)
+	email,err :=s.jwtUtil.ParseJWT(emailCookie)
 
 	if err != nil{
 		return nil,fmt.Errorf("Fail To Check Email : %w",err)
@@ -223,7 +224,7 @@ func (s *TaskService) GetPendingTask(emailCookie string ,priority string) ([]mod
 
 func (s *TaskService) GetOverdueTask(emailCookie string ,priority string) ([]models.Tasks,error) {
 	// NOTE - Decode Jwt in cookie เพื่อดึง Eamil
-	email,err :=utils.ParseJWT(emailCookie)
+	email,err :=s.jwtUtil.ParseJWT(emailCookie)
 
 	if err != nil{
 		return nil,fmt.Errorf("Fail To Check Email : %w",err)

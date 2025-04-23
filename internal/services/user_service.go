@@ -19,10 +19,11 @@ type UserServiceInterface interface {
 type UserService struct {
 	userRepo repositories.UserRepositoryInterface
 	hashUtil utils.HashInterface
+	jwtUtil utils.JwtInterface
 }
 
-func NewUserService(userRepo repositories.UserRepositoryInterface,hashUtil utils.HashInterface) *UserService {
-	return &UserService{userRepo: userRepo,hashUtil:hashUtil  }
+func NewUserService(userRepo repositories.UserRepositoryInterface,hashUtil utils.HashInterface, jwtUtil utils.JwtInterface) *UserService {
+	return &UserService{userRepo: userRepo,hashUtil:hashUtil, jwtUtil: jwtUtil  }
 }
 
 func (s *UserService) RegisterUser(user *models.Users) error {
@@ -63,7 +64,7 @@ func (s *UserService) Login(user *models.Users) (string,*models.Users,error) {
 		return "",nil,errors.New("Invalid Email or Password")
 	}
 
-	token, err := utils.GenerateJWT(dbUser.Email)
+	token, err := s.jwtUtil.GenerateJWT(dbUser.Email)
 	
 	if err != nil{
 		return "",nil,fmt.Errorf("Failed to generate token: %w", err)
@@ -86,7 +87,7 @@ func (s *UserService) UpdateUserById(idStr string, emailCookie string, updatedUs
 	}
 
 	// NOTE - Decode Jwt in cookie เพื่อดึง Eamil
-	email,err :=utils.ParseJWT(emailCookie)
+	email,err :=s.jwtUtil.ParseJWT(emailCookie)
 
 	if err != nil{
 		return fmt.Errorf("Fail To Check Email : %w",err)

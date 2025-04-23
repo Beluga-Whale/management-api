@@ -42,10 +42,10 @@ func main() {
 	taskRepo := repositories.NewTaskRepository(config.DB)
 
 	hashUtil := utils.NewHash()
-
+	jwtUtil := utils.NewJwt()
 	// NOTE - Create Service
-	userService := services.NewUserService(userRepo,hashUtil)
-	taskService := services.NewTaskService(taskRepo,userRepo)
+	userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
+	taskService := services.NewTaskService(taskRepo,userRepo,jwtUtil)
 
 	// NOTE - Handler
 	userHandler := handlers.NewUserHandler(userService)

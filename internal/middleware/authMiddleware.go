@@ -14,6 +14,8 @@ type JWTClaims struct {
 }
 
 func AuthMiddleware(c*fiber.Ctx) error {
+	jwtUtil := utils.NewJwt()
+
 	// NOTE - Get cookies 
 	tokenString :=  c.Cookies("jwt")    
 	
@@ -24,8 +26,7 @@ func AuthMiddleware(c*fiber.Ctx) error {
 		})
 	}
 	
-
-	claims,err := utils.ParseJWT(tokenString)
+	claims,err := jwtUtil.ParseJWT(tokenString)
 
 	c.Locals("userEmail", claims)
 

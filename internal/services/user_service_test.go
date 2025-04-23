@@ -27,8 +27,9 @@ func TestRegisterUser(t *testing.T) {
 		// NOTE - สมัครต่อได้
 		userRepo.On("CreateUser",mock.Anything).Return(nil)
 		
-		checkPassword := utils.NewHashMock()
-		userService := services.NewUserService(userRepo,checkPassword)
+		hashUtil := utils.NewHashMock()
+		jwtUtil := utils.NewJwtMock()
+		userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
 
 		err :=userService.RegisterUser(user)
 
@@ -44,8 +45,9 @@ func TestRegisterUser(t *testing.T) {
 			Name: "tester",
 		}
 		userRepo := repositories.NewUserRepositoryMock()
-		checkPassword := utils.NewHashMock()
-		userService := services.NewUserService(userRepo,checkPassword)
+		hashUtil := utils.NewHashMock()
+		jwtUtil := utils.NewJwtMock()
+		userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
 	
 		err :=userService.RegisterUser(user)
 		assert.EqualError(t,err,"Email is required")
@@ -61,8 +63,9 @@ func TestRegisterUser(t *testing.T) {
 
 		userRepo.On("FindByEmail",user.Email).Return(nil,errors.New("Fail To Check Email"))
 
-		checkPassword := utils.NewHashMock()
-		userService := services.NewUserService(userRepo,checkPassword)
+		hashUtil := utils.NewHashMock()
+		jwtUtil := utils.NewJwtMock()
+		userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
 
 		err := userService.RegisterUser(user)
 
@@ -79,8 +82,9 @@ func TestRegisterUser(t *testing.T) {
 
 		userRepo.On("FindByEmail",user.Email).Return(user,nil)
 
-		checkPassword := utils.NewHashMock()
-		userService := services.NewUserService(userRepo,checkPassword)
+		hashUtil := utils.NewHashMock()
+		jwtUtil := utils.NewJwtMock()
+		userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
 
 		err := userService.RegisterUser(user)
 
@@ -100,8 +104,9 @@ func TestRegisterUser(t *testing.T) {
 		// NOTE - ส่ง email ไปเช็คว่าซ้ำกันในระบบไหม
 		userRepo.On("FindByEmail",user.Email).Return(nil,nil)
 
-		checkPassword := utils.NewHashMock()
-		userService := services.NewUserService(userRepo,checkPassword)
+		hashUtil := utils.NewHashMock()
+		jwtUtil := utils.NewJwtMock()
+		userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
 
 		err :=userService.RegisterUser(user)
 
@@ -121,12 +126,14 @@ func TestLogin(t *testing.T){
 		}
 
 		userRepo := repositories.NewUserRepositoryMock()
-		checkPassword := utils.NewHashMock()
+		hashUtil := utils.NewHashMock()
 
 		userRepo.On("FindByEmail",user.Email).Return(user,nil)
-		checkPassword.On("CheckPassword",user,user.Password).Return(true)
+		hashUtil.On("CheckPassword",user,user.Password).Return(true)
 		
-		userService := services.NewUserService(userRepo,checkPassword)
+		jwtUtil := utils.NewJwtMock()
+		jwtUtil.On("GenerateJWT",user.Email).Return("token",nil)
+		userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
 
 		token,returnUser,err := userService.Login(user)
 
@@ -142,16 +149,78 @@ func TestLogin(t *testing.T){
 		}
 
 		userRepo := repositories.NewUserRepositoryMock()
-		checkPassword := utils.NewHashMock()
+		hashUtil := utils.NewHashMock()
 		
 		userRepo.On("FindByEmail",user.Email).Return(user,nil)
-		checkPassword.On("CheckPassword",user,user.Password).Return(false)
+		hashUtil.On("CheckPassword",user,user.Password).Return(false)
 
-		userService := services.NewUserService(userRepo,checkPassword)
+		jwtUtil := utils.NewJwtMock()
+		userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
 
 		_,_,err :=userService.Login(user)
 
 		assert.EqualError(t,err,"Email or Password is required")
 
+	})
+
+	t.Run("Login Email not found",func(t *testing.T) {
+		user := &models.Users{
+			Email: "test@",
+			Password: "1234551",
+		}
+
+		userRepo := repositories.NewUserRepositoryMock()
+		hashUtil := utils.NewHashMock()
+
+		userRepo.On("FindByEmail",user.Email).Return(nil,errors.New("Error fail"))
+		
+		jwtUtil := utils.NewJwtMock()
+		userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
+
+		_,_,err := userService.Login(user)
+
+		assert.EqualError(t,err,"Email not found")
+	})
+
+	t.Run("Login Invalid Email or Password",func(t *testing.T) {
+		user := &models.Users{
+			Email: "test@",
+			Password: "1234551",
+		}
+
+		userRepo := repositories.NewUserRepositoryMock()
+		hashUtil := utils.NewHashMock()
+
+		userRepo.On("FindByEmail",user.Email).Return(user,nil)
+		hashUtil.On("CheckPassword",user,user.Password).Return(false)
+
+		jwtUtil := utils.NewJwtMock()
+		userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
+
+		_,_,err := userService.Login(user)
+
+		assert.EqualError(t,err,"Invalid Email or Password")
+		userRepo.AssertExpectations(t)
+	})
+
+	t.Run("Login Fail to generate token",func(t *testing.T) {
+		user := &models.Users{
+			Email: "login@gmail.com",
+			Password: "password",
+		}
+
+		userRepo := repositories.NewUserRepositoryMock()
+		hashUtil := utils.NewHashMock()
+
+		userRepo.On("FindByEmail",user.Email).Return(user,nil)
+		hashUtil.On("CheckPassword",user,user.Password).Return(true)
+		
+		jwtUtil := utils.NewJwtMock()
+		jwtUtil.On("GenerateJWT",user.Email).Return("",errors.New("Failed to generate JWT"))
+		userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
+
+		_,_,err := userService.Login(user)
+
+		assert.EqualError(t,err,"Failed to generate token: Failed to generate JWT")
 	})
 }

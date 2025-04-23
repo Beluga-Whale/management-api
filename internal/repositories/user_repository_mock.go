@@ -31,7 +31,12 @@ func (m *UserRepositoryMock) FindByEmail(email string) (*models.Users, error ){
 
 func (m *UserRepositoryMock)FindUserById(idStr string) (*models.Users, error ){
 	args :=m.Called(idStr)
-	return args.Get(0).(*models.Users),args.Error(1)
+
+	if user,ok := args.Get(0).(*models.Users); ok{
+		return user, args.Error(1)
+	}
+
+	return  nil,args.Error(1)
 }
 
 func (m *UserRepositoryMock) UpdateUserById(updatedUserValue *models.Users, userID uint) error{

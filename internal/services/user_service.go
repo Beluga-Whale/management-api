@@ -107,11 +107,10 @@ func (s *UserService) UpdateUserById(idStr string, emailCookie string, updatedUs
 	if err != nil {
 		return  fmt.Errorf("failed to find task by ID: %w", err)
 	}
-
-	// NOTE - มาเช็คว่าผู้ใช้เป็นเจ้าของ Task ไหม
 	if userID.ID != user.ID {
-		return  errors.New("you do not have permission to access this task")
+		return errors.New("you do not have permission to access this task")
 	}
+
 	if	err :=s.userRepo.UpdateUserById(updatedUserValue,userID.ID); err != nil {
 		return fmt.Errorf("Error : %w",err)
 	}

@@ -252,77 +252,173 @@ func TestGetUserByEmail(t *testing.T){
 }
 
 func TestUpdateUserById(t *testing.T){
-	// t.Run("Update Success",func(t *testing.T){
-
-	// 	idUser := "1"
-	// 	emailToken := "fakeToken"
-	// 	// NOTE User
-	// 	user := &models.Users{
-	// 		Email: "already@mail.com",
-	// 		Password: "1222123",
-	// 		Name: "tester",
-	// 		Model: gorm.Model{
-	// 			ID: 1,
-	// 		},
-	// 	}
-	// 	// NOTE - Update Bio
-	// 	userUpdate := &models.Users{
-	// 		Bio: "Test Update Bio",
-	// 	}
-	
-	// 	userRepo := repositories.NewUserRepositoryMock()
-	// 	hashUtil := utils.NewHashMock()
-	// 	jwtUtil := utils.NewJwtMock()
-
-	// 	jwtUtil.On("ParseJWT",emailToken).Return("test@gmail.com",nil)
-	// 	userRepo.On("FindByEmail","test@gmail.com").Return(user,nil)
-
-	// 	userRepo.On("FindUserById",idUser).Return(user,nil)
-
-	// 	userRepo.On("UpdateUserById",idUser).Return(nil)
-		
-	// 	userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
-
-	// 	err := userService.UpdateUserById(idUser,emailToken,userUpdate)
-
-	// 	assert.NoError(t,err)
-	// })
-
-	t.Run("Update Success", func(t *testing.T) {
+	t.Run("Update Success",func(t *testing.T){
 		idUser := "1"
 		emailToken := "fakeToken"
 		user := &models.Users{
-			Bio:    "Test Update Bio",
-			Email:  "test@gmail.com",
-			Model:  gorm.Model{ID: 1}, // กำหนด ID เป็น 1
+			Bio: "Test Updated Bio",
+			Email:"test@gmail.com",
+			Model: gorm.Model{ID: 1},
+		}
+
+		userRepo := repositories.NewUserRepositoryMock()
+		hashUtil := utils.NewHashMock()
+		jwt := utils.NewJwtMock()
+
+		jwt.On("ParseJWT",emailToken).Return("test@gmail.com",nil)
+		userRepo.On("FindByEmail",user.Email).Return(user,nil)
+		userRepo.On("FindUserById", idUser).Return(user,nil)
+		userRepo.On("UpdateUserById",user,user.ID).Return(nil)
+
+		userService := services.NewUserService(userRepo,hashUtil,jwt)
+
+		err := userService.UpdateUserById(idUser,emailToken,user)
+
+		assert.NoError(t,err)
+		userRepo.AssertExpectations(t)
+		jwt.AssertExpectations(t)
+	})
+
+	t.Run("Id is required",func(t *testing.T) {
+		idStr := ""
+		emailCookie:="fakeEmail"
+		user := &models.Users{
+
+			Bio: "tset",
+		}
+
+		userRepo := repositories.NewUserRepositoryMock()
+		hashUtil := utils.NewHashMock()
+		jwtUtil := utils.NewJwtMock()
+		userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
+
+		err :=userService.UpdateUserById(idStr,emailCookie,user)
+		
+		assert.EqualError(t,err,"Id is required")
+	})
+
+	t.Run("Fail To Check Email",func(t *testing.T) {
+		idStr := "1"
+		emailCookie:="fakeEmail"
+		user := &models.Users{
+
+			Bio: "tset",
 		}
 
 		userRepo := repositories.NewUserRepositoryMock()
 		hashUtil := utils.NewHashMock()
 		jwtUtil := utils.NewJwtMock()
 
-		// Mock ParseJWT ให้คืน email ที่ถูกต้อง
-		jwtUtil.On("ParseJWT", emailToken).Return("test@gmail.com", nil)
+		jwtUtil.On("ParseJWT",emailCookie).Return("",errors.New("Can not find you email"))
 
-		// Mock FindByEmail ให้คืน user จริงๆ
+		userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
+
+		err :=userService.UpdateUserById(idStr,emailCookie,user)
+		
+		assert.EqualError(t,err,"Fail To Check Email : Can not find you email")
+	})
+
+	t.Run("User not found",func(t *testing.T) {
+		idStr := "1"
+		emailCookie:="fakeEmail"
+		user := &models.Users{
+			Email: "test@gmail.com",
+			Bio: "tset",
+		}
+
+		userRepo := repositories.NewUserRepositoryMock()
+		hashUtil := utils.NewHashMock()
+		jwtUtil := utils.NewJwtMock()
+
+		jwtUtil.On("ParseJWT",emailCookie).Return("test@gmail.com",nil)
+		userRepo.On("FindByEmail",user.Email).Return(nil,errors.New("User not found"))
+
+		userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
+
+		err :=userService.UpdateUserById(idStr,emailCookie,user)
+		
+		assert.EqualError(t,err,"User not found")
+	})
+
+	t.Run("Failed to find task", func(t *testing.T) {
+		idStr := "1"
+		emailCookie := "fakeEmail"
+		user := &models.Users{
+			Email: "test@gmail.com",
+			Bio:   "test",
+		}
+
+		userRepo := repositories.NewUserRepositoryMock()
+		hashUtil := utils.NewHashMock()
+		jwtUtil := utils.NewJwtMock()
+
+		jwtUtil.On("ParseJWT", emailCookie).Return("test@gmail.com", nil)
+
 		userRepo.On("FindByEmail", user.Email).Return(user, nil)
 
-		// Mock FindUserById ให้คืน user ที่มี ID ตรงกับที่ต้องการ
-		userRepo.On("FindUserById", idUser).Return(user, nil)
-
-		// Mock UpdateUserById ให้คืน nil (ไม่มีข้อผิดพลาด)
-		userRepo.On("UpdateUserById", user, user.ID).Return(nil)
+		userRepo.On("FindUserById", idStr).Return(nil, errors.New("Can not"))
 
 		userService := services.NewUserService(userRepo, hashUtil, jwtUtil)
 
-		// เรียก UpdateUserById
-		err := userService.UpdateUserById(idUser, emailToken, user)
+		err := userService.UpdateUserById(idStr, emailCookie, user)
 
-		// ตรวจสอบว่าไม่มีข้อผิดพลาด
-		assert.NoError(t, err)
+		assert.EqualError(t, err, "failed to find task by ID: Can not")
 
-		// ตรวจสอบว่า mock ถูกเรียกตามที่คาดหวัง
 		jwtUtil.AssertExpectations(t)
 		userRepo.AssertExpectations(t)
+	})
+
+	t.Run("Not have permission to acces task",func(t *testing.T) {
+		idUser := "1"
+		emailToken := "fakeToken"
+		user := &models.Users{
+			Bio: "Test Updated Bio",
+			Email:"test@gmail.com",
+			Model: gorm.Model{ID: 1},
+		}
+
+		otherUser :=&models.Users{
+		
+			Model: gorm.Model{ID: 2},
+		}
+
+		userRepo := repositories.NewUserRepositoryMock()
+		hashUtil := utils.NewHashMock()
+		jwt := utils.NewJwtMock()
+
+		jwt.On("ParseJWT",emailToken).Return("test@gmail.com",nil)
+		userRepo.On("FindByEmail",user.Email).Return(user,nil)
+		userRepo.On("FindUserById", idUser).Return(otherUser,nil)
+
+		userService := services.NewUserService(userRepo,hashUtil,jwt)
+
+		err := userService.UpdateUserById(idUser,emailToken,user)
+
+		assert.EqualError(t,err,"you do not have permission to access this task")
+	})
+
+	t.Run("Error update user",func(t *testing.T) {
+		idUser := "1"
+		emailToken := "fakeToken"
+		user := &models.Users{
+			Bio: "Test Updated Bio",
+			Email:"test@gmail.com",
+			Model: gorm.Model{ID: 1},
+		}
+
+		userRepo := repositories.NewUserRepositoryMock()
+		hashUtil := utils.NewHashMock()
+		jwt := utils.NewJwtMock()
+
+		jwt.On("ParseJWT",emailToken).Return("test@gmail.com",nil)
+		userRepo.On("FindByEmail",user.Email).Return(user,nil)
+		userRepo.On("FindUserById", idUser).Return(user,nil)
+		userRepo.On("UpdateUserById",user,user.ID).Return(errors.New("Error to update"))
+
+		userService := services.NewUserService(userRepo,hashUtil,jwt)
+
+		err := userService.UpdateUserById(idUser,emailToken,user)
+
+		assert.EqualError(t,err,"Error : Error to update")
 	})
 }

@@ -251,7 +251,43 @@ func TestGetUserByEmail(t *testing.T){
 
 }
 
-func TestUpdateUserById(t *testing.T) {
+func TestUpdateUserById(t *testing.T){
+	// t.Run("Update Success",func(t *testing.T){
+
+	// 	idUser := "1"
+	// 	emailToken := "fakeToken"
+	// 	// NOTE User
+	// 	user := &models.Users{
+	// 		Email: "already@mail.com",
+	// 		Password: "1222123",
+	// 		Name: "tester",
+	// 		Model: gorm.Model{
+	// 			ID: 1,
+	// 		},
+	// 	}
+	// 	// NOTE - Update Bio
+	// 	userUpdate := &models.Users{
+	// 		Bio: "Test Update Bio",
+	// 	}
+	
+	// 	userRepo := repositories.NewUserRepositoryMock()
+	// 	hashUtil := utils.NewHashMock()
+	// 	jwtUtil := utils.NewJwtMock()
+
+	// 	jwtUtil.On("ParseJWT",emailToken).Return("test@gmail.com",nil)
+	// 	userRepo.On("FindByEmail","test@gmail.com").Return(user,nil)
+
+	// 	userRepo.On("FindUserById",idUser).Return(user,nil)
+
+	// 	userRepo.On("UpdateUserById",idUser).Return(nil)
+		
+	// 	userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
+
+	// 	err := userService.UpdateUserById(idUser,emailToken,userUpdate)
+
+	// 	assert.NoError(t,err)
+	// })
+
 	t.Run("Update Success", func(t *testing.T) {
 		idUser := "1"
 		emailToken := "fakeToken"

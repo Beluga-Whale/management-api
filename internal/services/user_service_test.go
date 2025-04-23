@@ -135,22 +135,23 @@ func TestLogin(t *testing.T){
 		assert.Equal(t, user.Email, returnUser.Email)
 	})
 
-	// t.Run("Login password or email is required",func(t *testing.T) {
-	// 	user := &models.Users{
-	// 		Email: "",
-	// 		Password: "",
-	// 	}
+	t.Run("Login password or email is required",func(t *testing.T) {
+		user := &models.Users{
+			Email: "",
+			Password: "",
+		}
 
-	// 	userRepo := repositories.NewUserRepositoryMock()
-	// 	checkPassword := utils.NewHashMock()
+		userRepo := repositories.NewUserRepositoryMock()
+		checkPassword := utils.NewHashMock()
 		
-	// 	userRepo.On("FindByEmail",user.Email).Return(user,nil)
-	// 	checkPassword.On("CheckPassword",user,user.Password).Return(false)
+		userRepo.On("FindByEmail",user.Email).Return(user,nil)
+		checkPassword.On("CheckPassword",user,user.Password).Return(false)
 
-	// 	userService := services.NewUserService(userRepo)
+		userService := services.NewUserService(userRepo,checkPassword)
 
-	// 	_,_,err :=userService.Login(user)
+		_,_,err :=userService.Login(user)
 
-	// 	assert.EqualError(t,err,"Email or Password is require")
-	// })
+		assert.EqualError(t,err,"Email or Password is required")
+
+	})
 }

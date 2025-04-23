@@ -18,10 +18,11 @@ type UserServiceInterface interface {
 
 type UserService struct {
 	userRepo repositories.UserRepositoryInterface
+	hashUtil utils.HashInterface
 }
 
-func NewUserService(userRepo repositories.UserRepositoryInterface) *UserService {
-	return &UserService{userRepo: userRepo}
+func NewUserService(userRepo repositories.UserRepositoryInterface,hashUtil utils.HashInterface) *UserService {
+	return &UserService{userRepo: userRepo,hashUtil:hashUtil  }
 }
 
 func (s *UserService) RegisterUser(user *models.Users) error {
@@ -58,7 +59,7 @@ func (s *UserService) Login(user *models.Users) (string,*models.Users,error) {
 		return "",nil,errors.New("Email not found")
 	}
 
-	if !utils.CheckPassword(dbUser ,user.Password) {
+	if !s.hashUtil.CheckPassword(dbUser ,user.Password) {
 		return "",nil,errors.New("Invalid Email or Password")
 	}
 

@@ -7,6 +7,7 @@ import (
 	"github.com/Beluga-Whale/management-api/internal/models"
 	"github.com/Beluga-Whale/management-api/internal/repositories"
 	"github.com/Beluga-Whale/management-api/internal/services"
+	"github.com/Beluga-Whale/management-api/internal/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
@@ -26,8 +27,8 @@ func TestRegisterUser(t *testing.T) {
 		// NOTE - สมัครต่อได้
 		userRepo.On("CreateUser",mock.Anything).Return(nil)
 		
-
-		userService := services.NewUserService(userRepo)
+		checkPassword := utils.NewHashMock()
+		userService := services.NewUserService(userRepo,checkPassword)
 
 		err :=userService.RegisterUser(user)
 
@@ -43,7 +44,8 @@ func TestRegisterUser(t *testing.T) {
 			Name: "tester",
 		}
 		userRepo := repositories.NewUserRepositoryMock()
-		userService := services.NewUserService(userRepo)
+		checkPassword := utils.NewHashMock()
+		userService := services.NewUserService(userRepo,checkPassword)
 	
 		err :=userService.RegisterUser(user)
 		assert.EqualError(t,err,"Email is required")
@@ -59,7 +61,8 @@ func TestRegisterUser(t *testing.T) {
 
 		userRepo.On("FindByEmail",user.Email).Return(nil,errors.New("Fail To Check Email"))
 
-		userService := services.NewUserService(userRepo)
+		checkPassword := utils.NewHashMock()
+		userService := services.NewUserService(userRepo,checkPassword)
 
 		err := userService.RegisterUser(user)
 
@@ -76,7 +79,8 @@ func TestRegisterUser(t *testing.T) {
 
 		userRepo.On("FindByEmail",user.Email).Return(user,nil)
 
-		userService := services.NewUserService(userRepo)
+		checkPassword := utils.NewHashMock()
+		userService := services.NewUserService(userRepo,checkPassword)
 
 		err := userService.RegisterUser(user)
 
@@ -96,7 +100,8 @@ func TestRegisterUser(t *testing.T) {
 		// NOTE - ส่ง email ไปเช็คว่าซ้ำกันในระบบไหม
 		userRepo.On("FindByEmail",user.Email).Return(nil,nil)
 
-		userService := services.NewUserService(userRepo)
+		checkPassword := utils.NewHashMock()
+		userService := services.NewUserService(userRepo,checkPassword)
 
 		err :=userService.RegisterUser(user)
 
@@ -116,10 +121,12 @@ func TestLogin(t *testing.T){
 		}
 
 		userRepo := repositories.NewUserRepositoryMock()
+		checkPassword := utils.NewHashMock()
 
 		userRepo.On("FindByEmail",user.Email).Return(user,nil)
-
-		userService := services.NewUserService(userRepo)
+		checkPassword.On("CheckPassword",user,user.Password).Return(true)
+		
+		userService := services.NewUserService(userRepo,checkPassword)
 
 		token,returnUser,err := userService.Login(user)
 
@@ -127,4 +134,23 @@ func TestLogin(t *testing.T){
 		assert.NotEmpty(t,token)
 		assert.Equal(t, user.Email, returnUser.Email)
 	})
+
+	// t.Run("Login password or email is required",func(t *testing.T) {
+	// 	user := &models.Users{
+	// 		Email: "",
+	// 		Password: "",
+	// 	}
+
+	// 	userRepo := repositories.NewUserRepositoryMock()
+	// 	checkPassword := utils.NewHashMock()
+		
+	// 	userRepo.On("FindByEmail",user.Email).Return(user,nil)
+	// 	checkPassword.On("CheckPassword",user,user.Password).Return(false)
+
+	// 	userService := services.NewUserService(userRepo)
+
+	// 	_,_,err :=userService.Login(user)
+
+	// 	assert.EqualError(t,err,"Email or Password is require")
+	// })
 }

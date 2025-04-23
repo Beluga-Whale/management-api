@@ -5,7 +5,17 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-func CheckPassword(user *models.Users, password string) bool {
+type HashInterface interface {
+	CheckPassword(user *models.Users, password string) bool
+}
+
+type Hash struct{}
+
+func NewHash() *Hash{
+	return &Hash{}
+}
+
+func (h *Hash) CheckPassword(user *models.Users, password string) bool {
 	if user == nil {
 		return false
 	}

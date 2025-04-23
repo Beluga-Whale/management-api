@@ -10,6 +10,7 @@ import (
 	"github.com/Beluga-Whale/management-api/internal/repositories"
 	"github.com/Beluga-Whale/management-api/internal/routes"
 	"github.com/Beluga-Whale/management-api/internal/services"
+	"github.com/Beluga-Whale/management-api/internal/utils"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
@@ -40,8 +41,10 @@ func main() {
 	userRepo := repositories.NewUserRepository(config.DB)
 	taskRepo := repositories.NewTaskRepository(config.DB)
 
+	hashUtil := utils.NewHash()
+
 	// NOTE - Create Service
-	userService := services.NewUserService(userRepo)
+	userService := services.NewUserService(userRepo,hashUtil)
 	taskService := services.NewTaskService(taskRepo,userRepo)
 
 	// NOTE - Handler

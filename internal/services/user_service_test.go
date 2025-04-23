@@ -10,6 +10,7 @@ import (
 	"github.com/Beluga-Whale/management-api/internal/utils"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
+	"gorm.io/gorm"
 )
 
 func TestRegisterUser(t *testing.T) {
@@ -222,5 +223,70 @@ func TestLogin(t *testing.T){
 		_,_,err := userService.Login(user)
 
 		assert.EqualError(t,err,"Failed to generate token: Failed to generate JWT")
+	})
+}
+
+func TestGetUserByEmail(t *testing.T){
+	t.Run("GetUser Success",func(t *testing.T){
+		user := &models.Users{
+			Email: "login@gmail.com",
+			Password: "password",
+		}
+
+		userRepo := repositories.NewUserRepositoryMock()
+		hashUtil := utils.NewHashMock()
+		jwtUtil := utils.NewJwtMock()
+
+		userRepo.On("FindByEmail",user.Email).Return(user,nil)
+
+		userService := services.NewUserService(userRepo,hashUtil,jwtUtil)
+
+		user,err := userService.GetUserByEmail(user.Email)
+
+		assert.NoError(t,err)
+		assert.NotEmpty(t,user)
+		userRepo.AssertExpectations(t)
+	})
+
+
+}
+
+func TestUpdateUserById(t *testing.T) {
+	t.Run("Update Success", func(t *testing.T) {
+		idUser := "1"
+		emailToken := "fakeToken"
+		user := &models.Users{
+			Bio:    "Test Update Bio",
+			Email:  "test@gmail.com",
+			Model:  gorm.Model{ID: 1}, // กำหนด ID เป็น 1
+		}
+
+		userRepo := repositories.NewUserRepositoryMock()
+		hashUtil := utils.NewHashMock()
+		jwtUtil := utils.NewJwtMock()
+
+		// Mock ParseJWT ให้คืน email ที่ถูกต้อง
+		jwtUtil.On("ParseJWT", emailToken).Return("test@gmail.com", nil)
+
+		// Mock FindByEmail ให้คืน user จริงๆ
+		userRepo.On("FindByEmail", user.Email).Return(user, nil)
+
+		// Mock FindUserById ให้คืน user ที่มี ID ตรงกับที่ต้องการ
+		userRepo.On("FindUserById", idUser).Return(user, nil)
+
+		// Mock UpdateUserById ให้คืน nil (ไม่มีข้อผิดพลาด)
+		userRepo.On("UpdateUserById", user, user.ID).Return(nil)
+
+		userService := services.NewUserService(userRepo, hashUtil, jwtUtil)
+
+		// เรียก UpdateUserById
+		err := userService.UpdateUserById(idUser, emailToken, user)
+
+		// ตรวจสอบว่าไม่มีข้อผิดพลาด
+		assert.NoError(t, err)
+
+		// ตรวจสอบว่า mock ถูกเรียกตามที่คาดหวัง
+		jwtUtil.AssertExpectations(t)
+		userRepo.AssertExpectations(t)
 	})
 }

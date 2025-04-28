@@ -20,13 +20,21 @@ func (m *TaskServiceMock) CreateTask(task *models.Tasks, emailCookie string) err
 
 func (m *TaskServiceMock) GetAllTask(emailCookie string ,priority string) ([]models.Tasks,error) {
 	args := m.Called(emailCookie, priority)
-	return  args.Get(0).([]models.Tasks), args.Error(1)
+
+	if task,ok := args.Get(0).([]models.Tasks); ok{
+		return task,nil
+	}
+	return  nil, args.Error(1)
 }
 
 func  (m *TaskServiceMock) FindTaskById(idSrt string, emailCookie string) (*models.Tasks, error) {
 	args := m.Called(idSrt,emailCookie)
 
-	return args.Get(0).(*models.Tasks),args.Error(1)
+	if task,ok := args.Get(0).(*models.Tasks); ok{
+		return task,nil
+
+	}
+	return nil,args.Error(1)
 }
 
 func (m *TaskServiceMock) UpdateTaskById(idStr string, emailCookie string, updatedTaskValue *models.Tasks) error  {
@@ -43,8 +51,10 @@ func (m *TaskServiceMock) DeleteTaskById(idStr string,emailCookie string,) error
 
 func (m *TaskServiceMock) GetCompleteTask(emailCookie string ,priority string) ([]models.Tasks,error)   {
 	args := m.Called(emailCookie,priority)
-
-	return args.Get(0).([]models.Tasks),args.Error(1)
+	if task,ok :=args.Get(0).([]models.Tasks); ok{
+		return task,nil
+	}
+	return nil,args.Error(1)
 }
 
 func (m *TaskServiceMock) GetPendingTask(emailCookie string ,priority string) ([]models.Tasks,error) {

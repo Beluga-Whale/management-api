@@ -689,3 +689,199 @@ func TestGetCompleteTask(t *testing.T) {
 		assert.Contains(t, string(body), "Error to get complete task")
 	})
 }
+
+func TestGetPendingTask(t *testing.T) {
+	t.Run("GetPendingTask Success",func(t *testing.T) {
+		task := []models.Tasks{
+			{Title: "Pending Task1",
+			Description: "This is a pending task",},
+			{Title: "Pending Task2",
+			Description: "This is a pending task2",},
+		}
+
+		// emailCookie := "fakeJWT@gmail.com"
+		priority := "high"
+		taskService := services.NewTaskServiceMock()
+		taskHandler := handlers.NewTaskHandler(taskService)
+
+		taskService.On("GetPendingTask",mock.Anything,mock.Anything).Return(task,nil)
+
+		app := fiber.New()
+		app.Get("/task/pending",taskHandler.GetPendingTask)
+
+		req := httptest.NewRequest("GET",fmt.Sprintf("/task/pending?priority=%s",priority),nil)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Cookie", "jwt=fakeJWT@gmail.com")
+
+		// NOTE - Act 
+		res, err := app.Test(req)
+
+		body,_ := io.ReadAll(res.Body)
+
+		// NOTE - Assert
+		assert.NoError(t, err)
+
+		assert.Equal(t,fiber.StatusOK, res.StatusCode)
+		assert.Contains(t, string(body), "Pending Task1")
+		assert.Contains(t, string(body), "Pending Task2")
+
+		taskService.AssertExpectations(t)
+	})
+
+	t.Run("GetPendingTask not authenticated",func(t *testing.T) {
+		task := []models.Tasks{
+			{Title: "Pending Task1",
+			Description: "This is a pending task",},
+			{Title: "Pending Task2",
+			Description: "This is a pending task2",},
+		}
+
+		priority := "high"
+		taskService := services.NewTaskServiceMock()
+		taskHandler := handlers.NewTaskHandler(taskService)
+
+		taskService.On("GetPendingTask",mock.Anything,mock.Anything).Return(task,nil)
+
+		app := fiber.New()
+		app.Get("/task/pending",taskHandler.GetPendingTask)
+
+		req := httptest.NewRequest("GET",fmt.Sprintf("/task/pending?priority=%s",priority),nil)
+		req.Header.Set("Content-Type", "application/json")
+
+		// NOTE - Act 
+		res, err := app.Test(req)
+
+		body,_ := io.ReadAll(res.Body)
+
+		// NOTE - Assert
+		assert.NoError(t, err)
+
+		assert.Equal(t,fiber.StatusUnauthorized, res.StatusCode)
+		assert.Contains(t, string(body), "User not authenticated")
+	})
+
+	t.Run("GetPendingTask Error to get pending task",func(t *testing.T) {
+
+		priority := "high"
+		taskService := services.NewTaskServiceMock()
+		taskHandler := handlers.NewTaskHandler(taskService)
+
+		taskService.On("GetPendingTask",mock.Anything,mock.Anything).Return(nil,errors.New("Error to get pending task"))
+
+		app := fiber.New()
+		app.Get("/task/pending",taskHandler.GetPendingTask)
+
+		req := httptest.NewRequest("GET",fmt.Sprintf("/task/pending?priority=%s",priority),nil)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Cookie", "jwt=fakeJWT@gmail.com")
+
+		// NOTE - Act 
+		res, err := app.Test(req)
+
+		body,_ := io.ReadAll(res.Body)
+
+		// NOTE - Assert
+		assert.NoError(t, err)
+
+		assert.Equal(t,fiber.StatusBadRequest, res.StatusCode)
+		assert.Contains(t, string(body), "Error to get pending task")
+	})
+}
+
+func TestGetOverdueTask(t *testing.T) {
+	t.Run("GetOverdueTask Success",func(t *testing.T) {
+		task := []models.Tasks{
+			{Title: "OverdueTask Task1",
+			Description: "This is a overdueTask task",},
+			{Title: "OverdueTask Task2",
+			Description: "This is a overdueTask task2",},
+		}
+
+		// emailCookie := "fakeJWT@gmail.com"
+		priority := "high"
+		taskService := services.NewTaskServiceMock()
+		taskHandler := handlers.NewTaskHandler(taskService)
+
+		taskService.On("GetOverdueTask",mock.Anything,mock.Anything).Return(task,nil)
+
+		app := fiber.New()
+		app.Get("/task/overdueTask",taskHandler.GetOverdueTask)
+
+		req := httptest.NewRequest("GET",fmt.Sprintf("/task/overdueTask?priority=%s",priority),nil)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Cookie", "jwt=fakeJWT@gmail.com")
+
+		// NOTE - Act 
+		res, err := app.Test(req)
+
+		body,_ := io.ReadAll(res.Body)
+
+		// NOTE - Assert
+		assert.NoError(t, err)
+
+		assert.Equal(t,fiber.StatusOK, res.StatusCode)
+		assert.Contains(t, string(body), "OverdueTask Task1")
+		assert.Contains(t, string(body), "OverdueTask Task2")
+
+		taskService.AssertExpectations(t)
+	})
+
+	t.Run("GetOverdueTask not authenticated",func(t *testing.T) {
+		task := []models.Tasks{
+			{Title: "OverdueTask Task1",
+			Description: "This is a overdueTask task",},
+			{Title: "OverdueTask Task2",
+			Description: "This is a overdueTask task2",},
+		}
+
+		priority := "high"
+		taskService := services.NewTaskServiceMock()
+		taskHandler := handlers.NewTaskHandler(taskService)
+
+		taskService.On("GetOverdueTask",mock.Anything,mock.Anything).Return(task,nil)
+
+		app := fiber.New()
+		app.Get("/task/overdueTask",taskHandler.GetOverdueTask)
+
+		req := httptest.NewRequest("GET",fmt.Sprintf("/task/overdueTask?priority=%s",priority),nil)
+		req.Header.Set("Content-Type", "application/json")
+
+		// NOTE - Act 
+		res, err := app.Test(req)
+
+		body,_ := io.ReadAll(res.Body)
+
+		// NOTE - Assert
+		assert.NoError(t, err)
+
+		assert.Equal(t,fiber.StatusUnauthorized, res.StatusCode)
+		assert.Contains(t, string(body), "User not authenticated")
+	})
+
+	t.Run("GetOverdueTask Error to get overdueTask task",func(t *testing.T) {
+
+		priority := "high"
+		taskService := services.NewTaskServiceMock()
+		taskHandler := handlers.NewTaskHandler(taskService)
+
+		taskService.On("GetOverdueTask",mock.Anything,mock.Anything).Return(nil,errors.New("Error to get overdueTask task"))
+
+		app := fiber.New()
+		app.Get("/task/overdueTask",taskHandler.GetOverdueTask)
+
+		req := httptest.NewRequest("GET",fmt.Sprintf("/task/overdueTask?priority=%s",priority),nil)
+		req.Header.Set("Content-Type", "application/json")
+		req.Header.Set("Cookie", "jwt=fakeJWT@gmail.com")
+
+		// NOTE - Act 
+		res, err := app.Test(req)
+
+		body,_ := io.ReadAll(res.Body)
+
+		// NOTE - Assert
+		assert.NoError(t, err)
+
+		assert.Equal(t,fiber.StatusBadRequest, res.StatusCode)
+		assert.Contains(t, string(body), "Error to get overdueTask task")
+	})
+}

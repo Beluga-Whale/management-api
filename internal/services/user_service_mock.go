@@ -20,12 +20,18 @@ func (m *UserServiceMock) RegisterUser(user *models.Users) error {
 
 func (m *UserServiceMock) Login(user *models.Users) (string,*models.Users,error) {
 	args :=m.Called(user)
-	return args.String(0),args.Get(1).(*models.Users),args.Error(2)
+	if task,ok := args.Get(1).(*models.Users) ; ok {
+		return args.String(0),task,nil
+	}
+	return "",nil,args.Error(2)
 }
 
 func (m *UserServiceMock) GetUserByEmail(email string) (*models.Users, error) {
 	args :=m.Called(email)
-	return args.Get(0).(*models.Users),args.Error(1)
+	if user,ok := args.Get(0).(*models.Users);ok{
+		return user,nil
+	}
+	return nil,args.Error(1)
 }
 
 func (m *UserServiceMock) UpdateUserById(idStr string, emailCookie string, updatedUserValue *models.Users) (error) {

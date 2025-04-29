@@ -60,13 +60,19 @@ func (m *TaskServiceMock) GetCompleteTask(emailCookie string ,priority string) (
 func (m *TaskServiceMock) GetPendingTask(emailCookie string ,priority string) ([]models.Tasks,error) {
 	args := m.Called(emailCookie,priority)
 
-	return args.Get(0).([]models.Tasks),args.Error(1)
+	if task,ok :=args.Get(0).([]models.Tasks); ok{
+		return task,nil
+	}
+	return nil,args.Error(1)
 }
 
 func (m *TaskServiceMock) GetOverdueTask(emailCookie string ,priority string) ([]models.Tasks,error) {
 	args := m.Called(emailCookie,priority)
 
-	return args.Get(0).([]models.Tasks),args.Error(1)
+	if task,ok :=args.Get(0).([]models.Tasks); ok{
+		return task,nil
+	}
+	return nil,args.Error(1)
 }
 
 

@@ -186,7 +186,7 @@ func TestGetAllTaskIntegration(t *testing.T){
 
 		assert.NoError(t, err)
 		assert.Equal(t,fiber.StatusOK,res.StatusCode)
-
+		clearDataBaseTask()
 	})
 
 	t.Run("GetAllTask Fail to check Email",func(t *testing.T) {
@@ -232,6 +232,200 @@ func TestGetCompleteTask(t *testing.T){
 
 		assert.NoError(t, err)
 		assert.Equal(t,fiber.StatusOK,res.StatusCode)
+		clearDataBaseTask()
+	})
+
+	t.Run("GetCompleteTask User not authenticated",func(t *testing.T) {
+		app := setUpAppTask()
+		email := fmt.Sprintf("test_integration_%s@gmail.com", uuid.NewString())
 		
+		// NOTE - Create TASK
+        token, err := createJWT(email)
+        if err != nil {
+            t.Fatalf("Failed to create JWT: %v", err)
+        }
+
+		registerAndCreateTask(t,email,token)
+
+		// NOTE - Get All TASK
+		req := httptest.NewRequest("GET", "/task/complete", nil)
+		res,err := app.Test(req)
+
+		assert.NoError(t, err)
+		assert.Equal(t,fiber.StatusUnauthorized,res.StatusCode)
+
+		body,_ := io.ReadAll(res.Body)
+		assert.Contains(t,string(body),"User not authenticated")
+		clearDataBaseTask()
+	})
+	
+	t.Run("GetCompleteTask User Fail to get all tasks",func(t *testing.T) {
+		app := setUpAppTask()
+		email := fmt.Sprintf("test_integration_%s@gmail.com", uuid.NewString())
+		
+		// NOTE - Create TASK
+        token, err := createJWT(email)
+        if err != nil {
+            t.Fatalf("Failed to create JWT: %v", err)
+        }
+
+		registerAndCreateTask(t,email,token)
+
+		// NOTE - Get All TASK
+		req := httptest.NewRequest("GET", "/task/complete", nil)
+		req.Header.Set("Cookie", "jwt=invalid-jwt" + token)
+		res,err := app.Test(req)
+
+		assert.NoError(t, err)
+		assert.Equal(t,fiber.StatusBadRequest,res.StatusCode)
+
+		body,_ := io.ReadAll(res.Body)
+		assert.Contains(t,string(body),"Fail To Check Email")
+		clearDataBaseTask()
+	})
+}
+func TestGetPendingTask(t *testing.T){
+	t.Run("GetPendingTask Success",func(t *testing.T) {
+		app := setUpAppTask()
+		email := fmt.Sprintf("test_integration_%s@gmail.com", uuid.NewString())
+		
+		// NOTE - Create TASK
+        token, err := createJWT(email)
+        if err != nil {
+            t.Fatalf("Failed to create JWT: %v", err)
+        }
+
+		registerAndCreateTask(t,email,token)
+
+		// NOTE - Get All TASK
+		req := httptest.NewRequest("GET", "/task/pending", nil)
+		req.Header.Set("Cookie", "jwt=" + token)
+		res,err := app.Test(req)
+
+		assert.NoError(t, err)
+		assert.Equal(t,fiber.StatusOK,res.StatusCode)
+		clearDataBaseTask()
+	})
+
+	t.Run("GetPendingTask User not authenticated",func(t *testing.T) {
+		app := setUpAppTask()
+		email := fmt.Sprintf("test_integration_%s@gmail.com", uuid.NewString())
+		
+		// NOTE - Create TASK
+        token, err := createJWT(email)
+        if err != nil {
+            t.Fatalf("Failed to create JWT: %v", err)
+        }
+
+		registerAndCreateTask(t,email,token)
+
+		// NOTE - Get All TASK
+		req := httptest.NewRequest("GET", "/task/pending", nil)
+		res,err := app.Test(req)
+
+		assert.NoError(t, err)
+		assert.Equal(t,fiber.StatusUnauthorized,res.StatusCode)
+
+		body,_ := io.ReadAll(res.Body)
+		assert.Contains(t,string(body),"User not authenticated")
+		clearDataBaseTask()
+	})
+	
+	t.Run("GetPendingTask User Fail to get all tasks",func(t *testing.T) {
+		app := setUpAppTask()
+		email := fmt.Sprintf("test_integration_%s@gmail.com", uuid.NewString())
+		
+		// NOTE - Create TASK
+        token, err := createJWT(email)
+        if err != nil {
+            t.Fatalf("Failed to create JWT: %v", err)
+        }
+
+		registerAndCreateTask(t,email,token)
+
+		// NOTE - Get All TASK
+		req := httptest.NewRequest("GET", "/task/pending", nil)
+		req.Header.Set("Cookie", "jwt=invalid-jwt" + token)
+		res,err := app.Test(req)
+
+		assert.NoError(t, err)
+		assert.Equal(t,fiber.StatusBadRequest,res.StatusCode)
+
+		body,_ := io.ReadAll(res.Body)
+		assert.Contains(t,string(body),"Fail To Check Email")
+		clearDataBaseTask()
+	})
+}
+
+func TestGetOverdueTask(t *testing.T){
+	t.Run("GetOverdueTask Success",func(t *testing.T) {
+		app := setUpAppTask()
+		email := fmt.Sprintf("test_integration_%s@gmail.com", uuid.NewString())
+		
+		// NOTE - Create TASK
+        token, err := createJWT(email)
+        if err != nil {
+            t.Fatalf("Failed to create JWT: %v", err)
+        }
+
+		registerAndCreateTask(t,email,token)
+
+		// NOTE - Get All TASK
+		req := httptest.NewRequest("GET", "/task/overdue", nil)
+		req.Header.Set("Cookie", "jwt=" + token)
+		res,err := app.Test(req)
+
+		assert.NoError(t, err)
+		assert.Equal(t,fiber.StatusOK,res.StatusCode)
+		clearDataBaseTask()
+	})
+
+	t.Run("GetOverdueTask User not authenticated",func(t *testing.T) {
+		app := setUpAppTask()
+		email := fmt.Sprintf("test_integration_%s@gmail.com", uuid.NewString())
+		
+		// NOTE - Create TASK
+        token, err := createJWT(email)
+        if err != nil {
+            t.Fatalf("Failed to create JWT: %v", err)
+        }
+
+		registerAndCreateTask(t,email,token)
+
+		// NOTE - Get All TASK
+		req := httptest.NewRequest("GET", "/task/overdue", nil)
+		res,err := app.Test(req)
+
+		assert.NoError(t, err)
+		assert.Equal(t,fiber.StatusUnauthorized,res.StatusCode)
+
+		body,_ := io.ReadAll(res.Body)
+		assert.Contains(t,string(body),"User not authenticated")
+		clearDataBaseTask()
+	})
+	
+	t.Run("GetOverdueTask User Fail to get all tasks",func(t *testing.T) {
+		app := setUpAppTask()
+		email := fmt.Sprintf("test_integration_%s@gmail.com", uuid.NewString())
+		
+		// NOTE - Create TASK
+        token, err := createJWT(email)
+        if err != nil {
+            t.Fatalf("Failed to create JWT: %v", err)
+        }
+
+		registerAndCreateTask(t,email,token)
+
+		// NOTE - Get All TASK
+		req := httptest.NewRequest("GET", "/task/overdue", nil)
+		req.Header.Set("Cookie", "jwt=invalid-jwt" + token)
+		res,err := app.Test(req)
+
+		assert.NoError(t, err)
+		assert.Equal(t,fiber.StatusBadRequest,res.StatusCode)
+
+		body,_ := io.ReadAll(res.Body)
+		assert.Contains(t,string(body),"Fail To Check Email")
+		clearDataBaseTask()
 	})
 }

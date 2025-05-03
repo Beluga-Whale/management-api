@@ -48,6 +48,10 @@ func ConnectDB() {
 
 	fmt.Println("Connect DB Success!")
 
+	DB.Exec("CREATE TYPE user_role AS ENUM ('admin', 'user');")
+	DB.Exec("CREATE TYPE task_status AS ENUM ('active', 'inactive');")
+	DB.Exec("CREATE TYPE task_priority AS ENUM ('low', 'medium', 'high');")
+
 	// AutoMigrate จะตรวจสอบและอัปเดตฐานข้อมูล
 	err = DB.AutoMigrate(
 		&models.Users{},   // ให้ตรวจสอบตาราง Users
@@ -91,6 +95,10 @@ func ConnectTestDB() {
 	}
 
 	fmt.Println("Connected to Test DB Successfully!")
+
+	TestDB.Exec("CREATE TYPE user_role AS ENUM ('admin', 'user');")
+	TestDB.Exec("CREATE TYPE task_status AS ENUM ('active', 'inactive');")
+	TestDB.Exec("CREATE TYPE task_priority AS ENUM ('low', 'medium', 'high');")
 
 	// ใช้ AutoMigrate เพื่ออัปเดตฐานข้อมูลสำหรับการทดสอบ
 	err = TestDB.AutoMigrate(

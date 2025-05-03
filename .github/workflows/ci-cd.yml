@@ -21,10 +21,6 @@ jobs:
           POSTGRES_DB: taskManage_test
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: password
-        volumes:
-          - pgdata_test:/var/lib/postgresql/data
-        networks:
-          - app-network
 
     steps:
       # เช็คเอาท์โค้ดจาก GitHub

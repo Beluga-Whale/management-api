@@ -27,9 +27,7 @@ jobs:
       - name: Install dependencies
         run: |
           go mod tidy
-      - name: Set up .env.test
-        run: |
-          cp .env.test .env # ตั้งค่าให้โหลด .env.tes
+
       # รัน Unit Tests และ Integration Tests
       - name: Run tests
         run: go test ./...

@@ -31,9 +31,10 @@ jobs:
       - name: Install deps
         run: go mod tidy
 
-      - name: Create .env.test
+      - name: Create .env.test at project root
+        working-directory: ./server
         run: |
-          echo "${{ secrets.ENV_TEST_CONTENT }}" > .env.test
+          echo "${{ secrets.ENV_TEST_CONTENT }}" > ../.env.test
 
       - name: Run Tests
         run: APP_ENV=test go test ./...

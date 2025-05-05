@@ -37,31 +37,19 @@ func LoadEnv() {
 		log.Fatalf("❌ Invalid APP_ENV: %s", env)
 	}
 
-	// กำหนด path ที่จะค้นหาไฟล์ .env
-	possiblePaths := []string{
-		filepath.Join(".", envFile), // โฟลเดอร์ปัจจุบัน
-		filepath.Join("..", envFile), // โฟลเดอร์ระดับบน
+	// ใช้ path ของ current working directory (ปลอดภัยทั้ง local และ CI)
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Fatal("❌ Failed to get working directory")
 	}
 
-	var found bool
-	for _, path := range possiblePaths {
-		fmt.Println("🔍 Checking:", path)
-		if _, err := os.Stat(path); err == nil {
-			fmt.Println("🔧 Loading env from:", path)
-			if err := godotenv.Load(path); err != nil {
-				log.Fatalf("❌ Failed to load env: %v", err)
-			}
-			found = true
-			break
-		}
-	}
+	envPath := filepath.Join(cwd, envFile)
+	fmt.Println("🔧 Loading env from:", envPath)
 
-	if !found {
-		log.Fatalf("❌ Could not find %s in known locations", envFile)
+	if err := godotenv.Load(envPath); err != nil {
+		log.Fatalf("❌ Failed to load env: %v", err)
 	}
 }
-
-
 
 func ConnectDB() {
 	var err error

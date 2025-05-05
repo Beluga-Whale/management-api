@@ -38,15 +38,15 @@ func LoadEnv() {
 		log.Fatalf("❌ Invalid APP_ENV: %s", env)
 	}
 
-	// ✅ ใช้ runtime.Caller เพื่อหาตำแหน่งของไฟล์ config.go นี้
-	_, b, _, ok := runtime.Caller(0)
+	// ✅ ใช้ runtime.Caller เพื่อให้ไม่หลุด directory เวลา go test
+	_, currentFile, _, ok := runtime.Caller(0)
 	if !ok {
-		log.Fatal("❌ Failed to get runtime caller")
+		log.Fatal("❌ Failed to get current file path")
 	}
 
-	basepath := filepath.Dir(b)                         // .../server/config
-	projectRoot := filepath.Join(basepath, "..", "..") // เดินขึ้นไปที่ root ของโปรเจกต์
-	envPath := filepath.Join(projectRoot, envFile)
+	// currentFile → /path/to/project/server/config/config.go
+	serverDir := filepath.Join(filepath.Dir(currentFile), "..") // เดินขึ้นจาก /config → /server
+	envPath := filepath.Join(serverDir, envFile)
 
 	fmt.Println("🔧 Loading env from:", envPath)
 

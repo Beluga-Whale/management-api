@@ -1,7 +1,0 @@
-# Ignore default .env files
-.env
-.env.production
-.env.test.localhost
-
-# Allow test env for CI
-!.env.test

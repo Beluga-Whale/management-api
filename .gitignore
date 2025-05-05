@@ -1,0 +1,4 @@
+# Ignore default .env files
+.env
+.env.production
+.env.test.localhost

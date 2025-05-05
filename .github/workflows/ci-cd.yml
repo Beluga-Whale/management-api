@@ -31,7 +31,6 @@ jobs:
       - name: Install deps
         run: go mod tidy
 
-        # ✅ ใส่ตรงนี้
       - name: Create .env.test
         run: |
           echo "${{ secrets.ENV_TEST_CONTENT }}" > .env.test

@@ -7,7 +7,6 @@ import (
 	"io"
 	"log"
 	"net/http/httptest"
-	"os"
 	"testing"
 	"time"
 
@@ -22,11 +21,7 @@ import (
 )
 
 func setUpAppUser() *fiber.App {
-	os.Setenv("HOST", "localhost")      
-	os.Setenv("PORT", "5433")       
-	os.Setenv("DATABASE_NAME", "taskManage_test") 
-	os.Setenv("USER_NAME", "postgres")   
-	os.Setenv("PASSWORD", "password") 
+	config.LoadEnv()
 	config.ConnectTestDB()
 	hashUtil := utils.NewHash()
 	jwtUtil := utils.NewJwt()

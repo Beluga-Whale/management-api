@@ -6,7 +6,6 @@ import (
 	"io"
 	"log"
 	"net/http/httptest"
-	"os"
 	"testing"
 
 	"github.com/Beluga-Whale/management-api/config"
@@ -20,11 +19,7 @@ import (
 )
 
 func setUpAppTask() *fiber.App {
-	os.Setenv("HOST", "localhost")
-	os.Setenv("PORT", "5433")
-	os.Setenv("DATABASE_NAME", "taskManage_test")
-	os.Setenv("USER_NAME", "postgres")
-	os.Setenv("PASSWORD", "password")
+	config.LoadEnv()
 	config.ConnectTestDB()
 	jwtUtil := utils.NewJwt()
 	hashUtil := utils.NewHash()

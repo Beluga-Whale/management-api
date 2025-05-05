@@ -5,7 +5,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"runtime"
 	"time"
 
 	"github.com/Beluga-Whale/management-api/internal/models"
@@ -27,10 +26,10 @@ func LoadEnv() {
 	}
 
 	envFileMap := map[string]string{
-		"development":     ".env",
-		"test":            ".env.test",
-		"test.localhost":  ".env.test.localhost",
-		"production":      ".env.production",
+		"development":    ".env",
+		"test":           ".env.test",
+		"test.localhost": ".env.test.localhost",
+		"production":     ".env.production",
 	}
 
 	envFile, ok := envFileMap[env]
@@ -38,18 +37,10 @@ func LoadEnv() {
 		log.Fatalf("❌ Invalid APP_ENV: %s", env)
 	}
 
-	// หา path project root
-	_, currentFile, _, ok := runtime.Caller(0)
-	if !ok {
-		log.Fatal("❌ Cannot get current file info")
-	}
-	configDir := filepath.Dir(currentFile)
-	projectRoot := filepath.Join(configDir, "..", "..")
-
-	// possible path ทั้ง local + CI
+	// กำหนด path ที่จะค้นหาไฟล์ .env
 	possiblePaths := []string{
-		filepath.Join(projectRoot, envFile),          // root/.env.test → GitHub Actions ใช้
-		filepath.Join(projectRoot, "server", envFile), // server/.env.test → local dev ใช้
+		filepath.Join(".", envFile), // โฟลเดอร์ปัจจุบัน
+		filepath.Join("..", envFile), // โฟลเดอร์ระดับบน
 	}
 
 	var found bool
@@ -69,6 +60,8 @@ func LoadEnv() {
 		log.Fatalf("❌ Could not find %s in known locations", envFile)
 	}
 }
+
+
 
 func ConnectDB() {
 	var err error

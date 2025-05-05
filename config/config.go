@@ -38,7 +38,7 @@ func LoadEnv() {
 		log.Fatalf("❌ Invalid APP_ENV: %s", env)
 	}
 
-	// หาจากโฟลเดอร์ root จริงๆ ของโปรเจกต์ (สองระดับบนจาก /server/config)
+	// หา path project root
 	_, currentFile, _, ok := runtime.Caller(0)
 	if !ok {
 		log.Fatal("❌ Cannot get current file info")
@@ -46,10 +46,10 @@ func LoadEnv() {
 	configDir := filepath.Dir(currentFile)
 	projectRoot := filepath.Join(configDir, "..", "..")
 
-	// 👇 มองหาไฟล์จาก root และจาก path ปัจจุบัน (เพื่อให้ใช้ได้ทั้ง local/dev และ CI/CD)
+	// possible path ทั้ง local + CI
 	possiblePaths := []string{
-		filepath.Join(projectRoot, envFile), // e.g. ./project/.env.test
-		filepath.Join(".", envFile),         // e.g. current dir
+		filepath.Join(projectRoot, envFile),          // root/.env.test → GitHub Actions ใช้
+		filepath.Join(projectRoot, "server", envFile), // server/.env.test → local dev ใช้
 	}
 
 	var found bool
@@ -69,7 +69,6 @@ func LoadEnv() {
 		log.Fatalf("❌ Could not find %s in known locations", envFile)
 	}
 }
-
 
 func ConnectDB() {
 	var err error

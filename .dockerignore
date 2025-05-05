@@ -1,8 +1,4 @@
-# Ignore all env files...
 .env*
-# ...except production one
-!.env.production
-
 *.md
 .git
 .vscode

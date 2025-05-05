@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"runtime"
 	"time"
 
 	"github.com/Beluga-Whale/management-api/internal/models"
@@ -37,19 +38,23 @@ func LoadEnv() {
 		log.Fatalf("❌ Invalid APP_ENV: %s", env)
 	}
 
-	// ใช้ path ของ current working directory (ปลอดภัยทั้ง local และ CI)
-	cwd, err := os.Getwd()
-	if err != nil {
-		log.Fatal("❌ Failed to get working directory")
+	// ✅ ใช้ runtime.Caller เพื่อหาตำแหน่งของไฟล์ config.go นี้
+	_, b, _, ok := runtime.Caller(0)
+	if !ok {
+		log.Fatal("❌ Failed to get runtime caller")
 	}
 
-	envPath := filepath.Join(cwd, envFile)
+	basepath := filepath.Dir(b)                         // .../server/config
+	projectRoot := filepath.Join(basepath, "..", "..") // เดินขึ้นไปที่ root ของโปรเจกต์
+	envPath := filepath.Join(projectRoot, envFile)
+
 	fmt.Println("🔧 Loading env from:", envPath)
 
 	if err := godotenv.Load(envPath); err != nil {
 		log.Fatalf("❌ Failed to load env: %v", err)
 	}
 }
+
 
 func ConnectDB() {
 	var err error

@@ -38,6 +38,7 @@ func LoadEnv() {
 		log.Fatalf("❌ Invalid APP_ENV: %s", env)
 	}
 
+	// หาจากโฟลเดอร์ root จริงๆ ของโปรเจกต์ (สองระดับบนจาก /server/config)
 	_, currentFile, _, ok := runtime.Caller(0)
 	if !ok {
 		log.Fatal("❌ Cannot get current file info")
@@ -45,10 +46,10 @@ func LoadEnv() {
 	configDir := filepath.Dir(currentFile)
 	projectRoot := filepath.Join(configDir, "..", "..")
 
-	// 👇 ลองหา env จากหลาย path
+	// 👇 มองหาไฟล์จาก root และจาก path ปัจจุบัน (เพื่อให้ใช้ได้ทั้ง local/dev และ CI/CD)
 	possiblePaths := []string{
-		filepath.Join(projectRoot, "server", envFile), // default: ./server/.env.test
-		filepath.Join(projectRoot, envFile),           // fallback: ./.env.test
+		filepath.Join(projectRoot, envFile), // e.g. ./project/.env.test
+		filepath.Join(".", envFile),         // e.g. current dir
 	}
 
 	var found bool

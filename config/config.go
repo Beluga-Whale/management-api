@@ -22,6 +22,12 @@ var TestDB *gorm.DB
 
 func LoadEnv() {
 	env := os.Getenv("APP_ENV")
+
+	if env == "production" {
+		fmt.Println("✅ Running in production mode: using ENV variables only")
+		return
+	}
+
 	if env == "" {
 		env = "development"
 	}

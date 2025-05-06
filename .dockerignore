@@ -1,7 +1,5 @@
 # .dockerignore
-.env
-.env.test*
-!.env.production   # ✅ เพิ่มบรรทัดนี้เพื่อให้ .env.production เข้า image ได้
+.env*
 *.md
 .git
 .vscode

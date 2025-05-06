@@ -59,12 +59,13 @@ func LoadEnv() {
 func ConnectDB() {
 	var err error
 
-	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=%s",
 	os.Getenv("HOST"),
 	os.Getenv("USER_NAME"),
 	os.Getenv("PASSWORD"),
 	os.Getenv("DATABASE_NAME"),
 	os.Getenv("PORT"),
+	os.Getenv("SSL_MODE"),
 	)
 
 	// New logger for detailed SQL logging

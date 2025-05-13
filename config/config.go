@@ -74,6 +74,9 @@ func ConnectDB() {
 	os.Getenv("SSL_MODE"),
 	)
 
+	fmt.Println("🔍 ENV:", os.Getenv("HOST"), os.Getenv("PORT"), os.Getenv("DATABASE_NAME"), os.Getenv("USER_NAME"))
+
+
 	// New logger for detailed SQL logging
 	newLogger := logger.New(
 		log.New(os.Stdout, "\r\n", log.LstdFlags), // io writer

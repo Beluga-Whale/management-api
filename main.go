@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/Beluga-Whale/management-api/config"
@@ -60,8 +61,12 @@ func main() {
 	if port =="" {
 		port =":8080"
 	}
-	fmt.Println("Server running on port",string(port))
+	 addr := fmt.Sprintf(":%s", port)
 
-	app.Listen(port)
+    fmt.Printf("Server running on port %s\n", port)
+    // NOTE -เช็ค error จาก Listen
+    if err := app.Listen(addr); err != nil {
+        log.Fatalf("Failed to start server: %v", err)
+    }
 
 }

@@ -51,7 +51,7 @@ func (h *UserHandler) Login(c *fiber.Ctx) error {
 		Expires: time.Now().Add(time.Hour*72),
 		HTTPOnly: true,
 		Secure:false,
-		SameSite: fiber.CookieSameSiteNoneMode, 
+		SameSite: fiber.CookieSameSiteLaxMode, 
 		
 	})
 

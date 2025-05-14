@@ -32,7 +32,7 @@ func main() {
 
 	// NOTE - Use cors
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:3000, http://localhost:3001, http://13.54.74.23:3000",
+		AllowOrigins: "http://localhost:3000, http://localhost:3001, https://belugatasks.dev",
 		AllowMethods: "GET,POST,PUT,PATCH,DELETE",
 		AllowHeaders: "Content-Type,Authorization",
 		AllowCredentials: true,

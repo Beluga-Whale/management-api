@@ -32,10 +32,10 @@ func main() {
 
 	// NOTE - Use cors
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "http://localhost:3000, http://localhost:3001, https://belugatasks.dev",
-		AllowMethods: "GET,POST,PUT,PATCH,DELETE",
-		AllowHeaders: "Content-Type,Authorization",
+		AllowOrigins: "https://belugatasks.dev",
 		AllowCredentials: true,
+		AllowMethods: "GET,POST,PUT,DELETE,OPTIONS",
+		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 	}))
 
 	// NOTE - Create Repository

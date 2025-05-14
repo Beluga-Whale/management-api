@@ -49,6 +49,7 @@ func (h *UserHandler) Login(c *fiber.Ctx) error {
 		Name: "jwt",
 		Value: token,
 		Expires: time.Now().Add(time.Hour*72),
+		Domain: ".belugatasks.dev",
 		HTTPOnly: true,
 		Secure:true,
 		SameSite: fiber.CookieSameSiteNoneMode, 

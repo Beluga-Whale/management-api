@@ -45,3 +45,23 @@ jobs:
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
           docker tag back-app ${{ secrets.DOCKER_USERNAME }}/back-app:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/back-app:latest
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push # ✅ job นี้จะรอ job ข้างบนเสร็จก่อน
+    steps:
+      - name: 📦 SSH & Deploy Docker Container on EC2
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/front-app:latest
+            sudo docker stop taskmanage-frontend || true
+            sudo docker rm taskmanage-frontend || true
+            sudo docker run -d \
+              --name taskmanage-frontend \
+              -p 80:3000 \
+              --restart unless-stopped \
+              ${{ secrets.DOCKER_USERNAME }}/front-app:latest

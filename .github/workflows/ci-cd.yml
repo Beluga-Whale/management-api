@@ -57,11 +57,13 @@ jobs:
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/front-app:latest
-            sudo docker stop taskmanage-frontend || true
-            sudo docker rm taskmanage-frontend || true
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/back-app:latest
+            sudo docker stop taskmanage-backend || true
+            sudo docker rm taskmanage-backend || true
             sudo docker run -d \
-              --name taskmanage-frontend \
-              -p 80:3000 \
+              --name taskmanage-backend \
+              --env-file /home/ubuntu/.env \
+              -e APP_ENV=production \
+              -p 80:8080  \
               --restart unless-stopped \
-              ${{ secrets.DOCKER_USERNAME }}/front-app:latest
+              ${{ secrets.DOCKER_USERNAME }}/back-app:latest

@@ -32,7 +32,7 @@ func main() {
 
 	// NOTE - Use cors
 	app.Use(cors.New(cors.Config{
-		AllowOrigins: "https://www.belugatasks.dev",
+		AllowOrigins: "https://www.belugatasks.dev, https://belugatasks.dev",
 		AllowMethods: "GET,POST,PUT,PATCH,DELETE,OPTIONS",
 		AllowHeaders: "Origin, Content-Type, Accept, Authorization",
 		AllowCredentials: true,

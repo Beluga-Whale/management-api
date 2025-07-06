@@ -48,7 +48,7 @@ jobs:
 
   deploy:
     runs-on: ubuntu-latest
-    needs: build-and-push # ✅ job นี้จะรอ job ข้างบนเสร็จก่อน
+    needs: build-and-push # ✅ job นี้จะรอ jobข้างบนเสร็จก่อน
     steps:
       - name: 📦 SSH & Deploy Docker Container on EC2
         uses: appleboy/ssh-action@v1.0.0
